@@ -156,6 +156,9 @@ pub(crate) struct TurnBody {
     pub(crate) turn_id: String,
     pub(crate) role: MemoryRole,
     pub(crate) content: String,
+    /// Provider-returned reasoning, kept separate from the final answer and included in the record hash.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) reasoning_content: Option<String>,
     pub(crate) content_sha256: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(crate) committed_unix_ms: Option<u64>,
@@ -870,7 +873,25 @@ impl ConversationArchive {
         role: MemoryRole,
         content: String,
     ) -> Result<TurnRecord, MemoryError> {
-        if content.len() as u64 > MAX_ARCHIVE_RECORD_BYTES {
+        self.append_turn_with_reasoning(role, content, None)
+    }
+
+    fn append_turn_with_reasoning(
+        &mut self,
+        role: MemoryRole,
+        content: String,
+        reasoning_content: Option<String>,
+    ) -> Result<TurnRecord, MemoryError> {
+        if reasoning_content.is_some() && role != MemoryRole::Assistant {
+            return Err(MemoryError::Invalid(
+                "Only assistant turns may carry provider reasoning".into(),
+            ));
+        }
+        if content
+            .len()
+            .saturating_add(reasoning_content.as_ref().map_or(0, String::len)) as u64
+            > MAX_ARCHIVE_RECORD_BYTES
+        {
             return Err(MemoryError::Capacity(format!(
                 "turn content exceeds {MAX_ARCHIVE_RECORD_BYTES} bytes"
             )));
@@ -894,6 +915,7 @@ impl ConversationArchive {
             turn_id,
             role,
             content,
+            reasoning_content,
             content_sha256,
             committed_unix_ms: Some(committed_unix_ms),
             lexical_terms,
@@ -1622,7 +1644,16 @@ impl ActiveConversationMemory {
                 .ok_or_else(|| {
                     MemoryError::Invalid("imported message omitted string content".to_string())
                 })?;
-            self.append_turn(MemoryRole::parse(role)?, content.to_string())?;
+            let role = MemoryRole::parse(role)?;
+            if role == MemoryRole::Assistant {
+                let reasoning = message
+                    .get("reasoning_content")
+                    .and_then(Value::as_str)
+                    .map(str::to_owned);
+                self.append_assistant_with_reasoning(content.to_string(), reasoning)?;
+            } else {
+                self.append_turn(role, content.to_string())?;
+            }
         }
         Ok(())
     }
@@ -1633,6 +1664,18 @@ impl ActiveConversationMemory {
 
     pub(crate) fn append_assistant(&mut self, content: String) -> Result<TurnRecord, MemoryError> {
         self.append_turn(MemoryRole::Assistant, content)
+    }
+
+    pub(crate) fn append_assistant_with_reasoning(
+        &mut self,
+        content: String,
+        reasoning: Option<String>,
+    ) -> Result<TurnRecord, MemoryError> {
+        let record =
+            self.archive
+                .append_turn_with_reasoning(MemoryRole::Assistant, content, reasoning)?;
+        self.active_turn_ids.push(record.body.turn_id.clone());
+        Ok(record)
     }
 
     pub(crate) fn append_tool_invocation(
@@ -1819,6 +1862,9 @@ impl ActiveConversationMemory {
                 "content": turn.body.content,
             });
             if turn.body.role == MemoryRole::Assistant {
+                if let Some(reasoning) = &turn.body.reasoning_content {
+                    message["reasoning_content"] = Value::String(reasoning.clone());
+                }
                 let calls = self
                     .archive
                     .agent_events()
@@ -2681,6 +2727,11 @@ fn validate_turn(
         )));
     }
     validate_hex_id("turn", &body.turn_id)?;
+    if body.reasoning_content.is_some() && body.role != MemoryRole::Assistant {
+        return Err(MemoryError::Invalid(
+            "Non-assistant turn carries provider reasoning".into(),
+        ));
+    }
     if body.content_sha256 != sha256_hex(body.content.as_bytes()) {
         return Err(MemoryError::Invalid(format!(
             "turn {} content hash drifted",
@@ -3848,6 +3899,81 @@ mod tests {
 
     fn token_count(value: &str) -> Result<usize, MemoryError> {
         Ok(value.split_whitespace().count())
+    }
+
+    #[test]
+    fn reasoning_survives_handoff_and_process_recovery() {
+        let root = TestDir::new("reasoning-handoff");
+        let (mut memory, _) =
+            ActiveConversationMemory::open(&root.0, ResumeSelection::New, Default::default())
+                .unwrap();
+        memory.append_user("old question".into()).unwrap();
+        memory
+            .append_assistant_with_reasoning("old answer".into(), Some("old reasoning".into()))
+            .unwrap();
+        memory.append_user("recent question".into()).unwrap();
+        memory
+            .append_assistant_with_reasoning(
+                "recent answer".into(),
+                Some("KEEP_RECENT_REASONING".into()),
+            )
+            .unwrap();
+        memory.append_user("current question".into()).unwrap();
+        assert!(memory
+            .compact_for_handoff_retaining(Vec::new(), 1)
+            .unwrap()
+            .is_some());
+        let id = memory.conversation_id().to_owned();
+        drop(memory);
+        let (memory, _) = ActiveConversationMemory::open(
+            &root.0,
+            ResumeSelection::Conversation(id),
+            Default::default(),
+        )
+        .unwrap();
+        let messages = memory.active_values("").unwrap();
+        assert!(messages
+            .iter()
+            .any(|m| m["reasoning_content"] == "KEEP_RECENT_REASONING"));
+        assert!(!messages
+            .iter()
+            .any(|m| m["reasoning_content"] == "old reasoning"));
+    }
+
+    #[test]
+    fn reasoning_is_hash_protected_and_assistant_only() {
+        let root = TestDir::new("reasoning-integrity");
+        let (mut archive, _) = ConversationArchive::open(&root.0, ResumeSelection::New).unwrap();
+        assert!(archive
+            .append_turn_with_reasoning(MemoryRole::User, "question".into(), Some("invalid".into()))
+            .is_err());
+        let mut record = archive
+            .append_turn_with_reasoning(
+                MemoryRole::Assistant,
+                "answer".into(),
+                Some("original reasoning".into()),
+            )
+            .unwrap();
+        assert!(validate_turn(&record, archive.conversation_id(), archive.current_epoch()).is_ok());
+        record.body.reasoning_content = Some("tampered".into());
+        assert!(
+            validate_turn(&record, archive.conversation_id(), archive.current_epoch()).is_err()
+        );
+    }
+
+    #[test]
+    fn legacy_records_omit_reasoning_and_keep_their_hashes() {
+        let root = TestDir::new("reasoning-legacy");
+        let (mut archive, _) = ConversationArchive::open(&root.0, ResumeSelection::New).unwrap();
+        let record = archive
+            .append_turn(MemoryRole::Assistant, "old answer".into())
+            .unwrap();
+        let json = serde_json::to_value(&record).unwrap();
+        assert!(json["body"].get("reasoning_content").is_none());
+        let decoded: TurnRecord = serde_json::from_value(json).unwrap();
+        assert!(
+            validate_turn(&decoded, archive.conversation_id(), archive.current_epoch()).is_ok()
+        );
     }
 
     #[test]

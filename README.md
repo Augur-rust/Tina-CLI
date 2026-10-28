@@ -4,7 +4,7 @@ A Rust terminal agent with streaming chat, workspace tools and persistent conver
 
 [中文说明](README.zh-CN.md) · [User guide](docs/USAGE.md) · [Context contract](docs/CONTEXT.md) · [Build](docs/BUILDING.md)
 
-**v0.1.0-alpha.2 candidate:** the terminal UI is connected to a Chat Completions HTTP client and the real tool host. Windows protocol and terminal acceptance have passed. Real-model acceptance is still pending; this candidate is not a model-quality or GPU performance qualification. The public alpha.1 release remains the earlier CPU replay package.
+**v0.1.0-alpha.2:** the terminal UI connects to a Chat Completions HTTP endpoint and the real tool host. Windows protocol, terminal and live DeepSeek integration acceptance have passed. This is product integration validation, not a model-quality benchmark or a local GPU performance qualification.
 
 ## Start on Windows
 
@@ -28,6 +28,17 @@ Augur must already be running. For another provider:
 
 Set the named environment variable in your own session when authentication is required, or use `--api-key-file C:\private\model-key.txt`. Tina saves the reference, not the secret value. Keep `tina.exe` and `cq-tool-host.exe` together in `bin`. Git is required for Git operations and project memory; Python and a GPU are not required to run Tina itself.
 
+### DeepSeek quick start
+
+With `DEEPSEEK_API_KEY` already set in your environment:
+
+```powershell
+.\bin\tina.exe configure --base-url https://api.deepseek.com/v1 --model deepseek-flash --api-key-env DEEPSEEK_API_KEY --thinking low --workspace C:\work\my-project
+.\bin\tina.exe chat
+```
+
+The official DeepSeek endpoint uses its native thinking controls. `off` disables thinking, `low` selects low effort, `medium`/`high` select high, and Tina's `xhigh` selects DeepSeek `max`. Provider-returned reasoning remains separate from the final answer and is preserved through tool continuation, archive recovery and retained handoff messages.
+
 ## Interactive features
 
 - Streaming reasoning/content and bounded, incrementally parsed tool calls.
@@ -50,7 +61,7 @@ The UI reports provider usage and **HTTP round throughput**. Missing usage is sh
 
 ## Verification and development
 
-Windows checks cover **183 Rust unit/process tests**, **9 executable HTTP fixture cases**, exact context-admission boundaries, formatting and Clippy. Terminal tests exercise real `APPLY`, file creation, Ctrl-C socket closure and a subsequent fresh session. Fixture responses are deterministic protocol test data, not model inference. See [verification results](docs/verification/summary.json).
+Windows checks cover **187 Rust unit/process tests**, **9 executable HTTP fixture cases**, exact context-admission boundaries, formatting and Clippy. Terminal tests exercise real `APPLY`, file creation, Ctrl-C socket closure and a subsequent fresh session. Fixture responses are deterministic protocol test data. Separately, **7 scripted and 4 interactive real DeepSeek cases** passed: English/Chinese answers, arithmetic-code validation, thinking-mode tool continuation, resume, handoff, approved editing, mode switching and cancellation followed by a successful request. See [verification results](docs/verification/summary.json).
 
 ```powershell
 .\scripts\Verify.ps1

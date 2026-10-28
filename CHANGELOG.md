@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.0-alpha.2 — candidate, 2026-10-28
+## v0.1.0-alpha.2 — 2026-10-28
 
 - Connect the terminal UI to streaming Chat Completions and the real workspace tool host.
 - Add first-run setup, Augur config import, credential references and Windows launchers.
@@ -8,7 +8,9 @@
 - Bound stream parsing and reject truncated or malformed tool completions before execution.
 - Reuse server token usage only after checking unchanged message prefixes and tool definitions; label estimates and HTTP throughput explicitly.
 - Add executable protocol tests, terminal acceptance evidence and updated third-party notices.
-- Real-model acceptance and public promotion remain pending; protocol fixtures are not quality evidence.
+- Preserve provider reasoning in hash-protected assistant archive records and restore it for DeepSeek tool continuations, process recovery and retained handoff turns. Legacy archive hashes remain readable.
+- Use native DeepSeek thinking controls: off disables reasoning, low/high select effort, and Tina xhigh maps to max.
+- Pass 187 Rust tests, 9 HTTP protocol fixtures, and 7 scripted plus 4 interactive real DeepSeek acceptance cases. These are integration checks, not capability benchmarks.
 
 ## v0.1.0-alpha.1 — 2026-10-28
 

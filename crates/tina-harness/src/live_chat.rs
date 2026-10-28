@@ -192,6 +192,17 @@ impl Session {
             m.as_object_mut()
                 .ok_or("Invalid archived message")?
                 .remove("tools");
+            if self.config.is_deepseek() && m["role"] == "assistant" {
+                // Host status turns / pre-integration archives have no provider reasoning.
+                m.as_object_mut()
+                    .ok_or("Invalid archived assistant")?
+                    .entry("reasoning_content")
+                    .or_insert_with(|| json!(""));
+            } else if !self.config.is_deepseek() {
+                m.as_object_mut()
+                    .ok_or("Invalid archived message")?
+                    .remove("reasoning_content");
+            }
             // Preserve consecutive user input after cancellation without sending an invalid role sequence.
             if let Some(previous) = messages.last_mut() {
                 if previous["role"] == "user" && m["role"] == "user" {
@@ -249,11 +260,7 @@ impl Session {
             request["tool_choice"] = "auto".into();
             request["parallel_tool_calls"] = false.into();
         }
-        if self.config.reasoning_effort != "off" {
-            request["reasoning_effort"] = self.config.reasoning_effort.clone().into();
-        } else {
-            request["chat_template_kwargs"] = json!({"enable_thinking":false});
-        }
+        self.config.apply_reasoning(&mut request);
         Ok(request)
     }
     fn execute_tools(
@@ -468,14 +475,19 @@ impl Session {
                 self.context_tokens,
                 self.budget().thresholds.hard_limit,
             )?;
+            let reasoning = if self.config.is_deepseek() || !completion.reasoning.is_empty() {
+                Some(completion.reasoning)
+            } else {
+                None
+            };
+            self.mem
+                .append_assistant_with_reasoning(completion.content, reasoning)?;
             if completion.calls.is_empty() {
-                self.mem.append_assistant(completion.content)?;
                 self.last_metrics = json!({"schema":"tina.live-turn.v1","conversation_id":self.mem.conversation_id(),"epoch":self.mem.current_epoch(),"model":self.config.model,"rounds":rounds,"completion_tokens":generated,"wall_seconds":start.elapsed().as_secs_f64(),"first_piece_seconds":first_piece,"context_positions":self.context_tokens,"context_source":self.context_source});
                 let path = self.mem.archive_root().join("last-live-metrics.json");
                 std::fs::write(path, serde_json::to_vec_pretty(&self.last_metrics)?)?;
                 return Ok(());
             }
-            self.mem.append_assistant(completion.content)?;
             self.execute_tools(completion.calls, &mut ledger, rounds)?;
         }
     }

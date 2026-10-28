@@ -1,0 +1,89 @@
+{
+  "schema": "tina.deepseek-live-acceptance.v1",
+  "model": "deepseek-flash",
+  "endpoint": "https://api.deepseek.com/v1",
+  "model_inference": true,
+  "synthetic_workspace_only": true,
+  "cases": [
+    {
+      "case": "english",
+      "status": "PASS",
+      "wall_seconds": 2.381,
+      "last_turn_rounds": 1,
+      "completion_tokens": 6,
+      "context_source": "server usage"
+    },
+    {
+      "case": "chinese",
+      "status": "PASS",
+      "wall_seconds": 1.063,
+      "last_turn_rounds": 1,
+      "completion_tokens": 3,
+      "context_source": "server usage"
+    },
+    {
+      "case": "thinking-tool",
+      "status": "PASS",
+      "wall_seconds": 2.97,
+      "last_turn_rounds": 2,
+      "completion_tokens": 160,
+      "context_source": "server usage"
+    },
+    {
+      "case": "thinking-tool-resume",
+      "status": "PASS",
+      "wall_seconds": 2.483,
+      "last_turn_rounds": 1,
+      "completion_tokens": 252,
+      "context_source": "server usage"
+    },
+    {
+      "case": "python-code",
+      "status": "PASS",
+      "wall_seconds": 1.197,
+      "last_turn_rounds": 1,
+      "completion_tokens": 18,
+      "context_source": "server usage"
+    },
+    {
+      "case": "compact-history",
+      "status": "PASS",
+      "wall_seconds": 3.957,
+      "last_turn_rounds": 1,
+      "completion_tokens": 23,
+      "context_source": "server usage"
+    },
+    {
+      "case": "compact-resume",
+      "status": "PASS",
+      "wall_seconds": 1.415,
+      "last_turn_rounds": 1,
+      "completion_tokens": 43,
+      "context_source": "server usage"
+    }
+  ],
+  "status": "PASS",
+  "case_count": 7,
+  "scope": "Product integration smoke tests; not a capability benchmark or local GPU measurement.",
+  "interactive_cases": [
+    {
+      "case": "approved_write_and_model_continuation",
+      "status": "PASS"
+    },
+    {
+      "case": "switch_off_to_low_and_read_tool",
+      "status": "PASS"
+    },
+    {
+      "case": "cancel_stream_without_committing_partial_answer",
+      "status": "PASS"
+    },
+    {
+      "case": "next_request_after_cancel",
+      "status": "PASS"
+    }
+  ],
+  "interactive_case_count": 4,
+  "date": "2026-10-28",
+  "binary_sha256": "e7a18205f59fe3621ce676ee55e3a5bd2cf049019f3169db166738ceb83af245"
+}

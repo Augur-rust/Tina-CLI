@@ -27,3 +27,7 @@ The 32 MiB serialized prompt/document guard bounds input bytes. It is not a 32-m
 - `3a218bdd21cf47bf25a9569c792085c9928e30d4`: agent-only host context; adapted while preserving Tina's receipt-first Agent instructions.
 
 The historical engine integration under `integration/` is outside the standalone Cargo workspace. Its upstream patches are retained for integrators and are not a claim of a newly qualified GPU build.
+
+## Provider reasoning in live archives
+
+Assistant records may include a separate optional `reasoning_content` field. It is covered by the record hash and is omitted from legacy records, keeping their existing hashes readable. DeepSeek tool continuation sends the retained reasoning back with its assistant message; handoff preserves that field for retained turns. Older turns leave the active context through the existing extractive handoff. Recovery never substitutes the final answer for missing reasoning. Generic endpoints are not sent the DeepSeek-only field.

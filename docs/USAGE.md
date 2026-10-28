@@ -75,4 +75,14 @@
 | 找不到工具进程 | 确认两个 EXE 同目录，或指定 `--tool-host PATH` |
 | 服务端返回 native generation failed | 查模型引擎日志；Tina 不将失败的流伪装成成功结果 |
 
-Windows 候选版的固定响应协议和终端操作测试已经通过。真实模型验收状态请看 [verification/summary.json](verification/summary.json)，不要把测试夹具的速度当作模型成绩。
+Windows 固定响应协议、终端操作及真实 DeepSeek 接入验收已经通过。详细结果请看 [verification/summary.json](verification/summary.json)，不要把测试夹具的速度当作模型成绩。
+
+## DeepSeek 思考模式与状态
+
+官方 `https://api.deepseek.com/v1` 接口已通过 `deepseek-flash` 的真实验收。配置 `--api-key-env DEEPSEEK_API_KEY --thinking low` 即可使用环境中的凭据；配置文件只保存变量名。
+
+Tina 会为官方 DeepSeek 地址发送原生 `thinking` / `reasoning_effort` 参数。`off` 对应 disabled/none，`low` 对应 low，`medium` 与 `high` 对应 high，`xhigh` 对应 max。其他兼容接口继续使用通用配置；第三方 DeepSeek 网关的参数转换尚未逐一验收。
+
+思考模式的工具请求需要把模型返回的 `reasoning_content` 传回服务端。Tina 将其与最终回答分别保存，并纳入归档记录校验；恢复会话、重试及保留轮次的上下文交接都会使用对应记录。旧归档没有该字段时仍可读取，但无法重建过去未保存的思考内容。请用新版本继续读取包含此字段的归档，旧版程序不保证识别新增记录。
+
+真实验收只使用临时合成工作区和环境凭据，覆盖 7 项脚本与 4 项终端用例。它验证产品通信和工具闭环，不代表任意任务的质量保证，也不是 Augur/GPU 性能成绩。

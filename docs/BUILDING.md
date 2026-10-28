@@ -35,3 +35,13 @@ Output goes under `dist/vVERSION-COMMIT/`. Packaging requires a clean checkout a
 Run `python scripts/test_live_http.py --binary <bundle>\bin\tina.exe` against the extracted release too. Test approved writes and cancellation in an actual interactive terminal; redirected protocol tests alone do not exercise raw-mode input. Record real-model checks separately before promoting a candidate release. A local package does not itself publish a Git tag or GitHub release.
 
 Windows x86_64 is the qualified build platform. There is no Linux binary package in this release.
+
+## Optional real API acceptance
+
+With `DEEPSEEK_API_KEY` already set, run:
+
+```powershell
+python scripts/test_deepseek_live.py --run-live --binary target/release/tina.exe --evidence-root .validation/deepseek-live-new
+```
+
+Use a new evidence directory. This opt-in command consumes paid API tokens and creates a disposable synthetic Git workspace. It checks English/Chinese responses, a read-tool continuation with reasoning, process resume, arithmetic-only generated Python, and handoff/resume. Raw responses and archives remain under the ignored evidence directory; its `report.json` contains only checks and metrics. CI does not invoke live API tests. Interactive edit approval and cancellation are checked separately in a terminal.

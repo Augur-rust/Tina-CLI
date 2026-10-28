@@ -1,10 +1,10 @@
 {
   "version": "0.1.0-alpha.2",
-  "status": "CANDIDATE_NOT_PUBLISHED",
+  "status": "RELEASE_ACCEPTANCE_PASSED",
   "date": "2026-10-28",
   "platform": "x86_64-pc-windows-msvc",
   "rust": "1.96.0",
-  "unit_and_process_tests": 183,
+  "unit_and_process_tests": 187,
   "executable_http_fixture_cases": 9,
   "protocol_test_responses": "FIXTURES_NOT_MODEL_INFERENCE",
   "build": "PASS",
@@ -19,7 +19,7 @@
     "packaged_first_run_wizard": "PASS",
     "packaged_approved_write_and_cancel": "PASS"
   },
-  "live_model_inference": "BLOCKED_ENGINE_STARTUP_ACCESS_DENIED",
+  "live_model_inference": "PASS_DEEPSEEK_FLASH",
   "gpu_performance_measurements": "NONE",
   "previous_alpha1_evidence": [
     "windows-verification.txt",
@@ -27,5 +27,10 @@
     "context-boundaries.json"
   ],
   "release_executable_http_fixture_cases": 9,
-  "package_verification": "Package.ps1 verifies every bundled file; archive checksums are distributed separately."
+  "package_verification": "Package.ps1 verifies every bundled file; archive checksums are distributed separately.",
+  "live_model_evidence": "alpha2-deepseek-live.json",
+  "real_api_scripted_cases": 7,
+  "real_api_interactive_cases": 4,
+  "model_quality_benchmark": "NOT_A_BENCHMARK",
+  "local_augur_engine": "NOT_QUALIFIED_BY_THIS_RELEASE"
 }

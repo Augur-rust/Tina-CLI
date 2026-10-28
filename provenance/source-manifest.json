@@ -14,10 +14,10 @@
     {
       "source": "crates/cq-infer/src/conversation_memory.rs",
       "destination": "crates/tina-harness/src/conversation_memory.rs",
-      "sha256": "d6f36be3b43ae8823097372c69898e72c8b284553c0de3fb22806d1e06ba9998",
+      "sha256": "1d33f438b4854abacfc184cbc730c202469217ebc0f9099088c7745eb33a1022",
       "kind": "adapted",
       "source_sha256": "ed180ca434a78f412882a6dd1022f9e664ff136d8899fb177741bff44dd7a283",
-      "adaptation": "Recorded context fix, standalone documentation, Rust formatting, or LF normalization; see release_adaptations and CHANGELOG.md."
+      "adaptation": "Standalone live agent integration, provider reasoning archive support and backwards-compatible context fixes; see release_adaptations."
     },
     {
       "source": "crates/cq-infer/src/project_memory.rs",
@@ -331,17 +331,26 @@
         "crates/tina-harness/src/tina_cli.rs"
       ],
       "details": "Live endpoint configuration, cancellable streaming HTTP, request-bound tool approvals, terminal command integration, immutable handoff, usage prefix validation and Windows launchers; no engine binaries/weights bundled."
+    },
+    {
+      "files": [
+        "crates/tina-harness/src/conversation_memory.rs",
+        "crates/tina-harness/src/live_config.rs",
+        "crates/tina-harness/src/live_chat.rs",
+        "scripts/test_deepseek_live.py"
+      ],
+      "details": "Real DeepSeek acceptance exposed missing reasoning_content during tool continuation. Preserve provider reasoning in hash-protected optional archive fields, retain legacy hashes, restore reasoning through resume/handoff, and map DeepSeek thinking controls explicitly. Qualified with seven scripted and four interactive real API cases."
     }
   ],
   "standalone_files": [
     {
       "path": "crates/tina-harness/src/live_chat.rs",
-      "sha256": "4bd9b4be5987cd1e3f4fc827f828a2aa2e9a2454ec9e8ccdf73891d6cecead9a",
+      "sha256": "300a4349978f5e65b5a1cc214237486653aaea933895a5dbcbe1c93696094cd6",
       "kind": "new standalone implementation"
     },
     {
       "path": "crates/tina-harness/src/live_config.rs",
-      "sha256": "ad7a999dbca3ccb86f8fdcdce9bae58bf329d439e80dee92b066097d5e5d257a",
+      "sha256": "4c42a885378df9a9b919376208c732d0706a2baba911c6fb47c692efb8a875e4",
       "kind": "new standalone implementation"
     },
     {
@@ -368,6 +377,11 @@
       "path": "Configure-Tina.cmd",
       "kind": "new standalone implementation",
       "sha256_lf_normalized": "c5b4a6886124651d28e4fdf6b375f2c3adf1ca64113585d6a87cfbb7c1e0d58a"
+    },
+    {
+      "path": "scripts/test_deepseek_live.py",
+      "sha256": "4bda93bd4e080ce21f9241e67509965d135e1323e49f57f3e11a04eaaca80321",
+      "kind": "new opt-in live acceptance script"
     }
   ]
 }

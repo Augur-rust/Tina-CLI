@@ -89,6 +89,28 @@ impl LiveConfig {
         }
         Ok(String::new())
     }
+    pub fn is_deepseek(&self) -> bool {
+        reqwest::Url::parse(&self.base_url)
+            .ok()
+            .is_some_and(|url| url.host_str() == Some("api.deepseek.com"))
+    }
+    pub fn apply_reasoning(&self, request: &mut serde_json::Value) {
+        if self.is_deepseek() {
+            let effort = match self.reasoning_effort.as_str() {
+                "off" => "none",
+                "low" => "low",
+                "xhigh" => "max",
+                _ => "high",
+            };
+            request["thinking"] =
+                serde_json::json!({"type": if effort == "none" { "disabled" } else { "enabled" }});
+            request["reasoning_effort"] = effort.into();
+        } else if self.reasoning_effort == "off" {
+            request["chat_template_kwargs"] = serde_json::json!({"enable_thinking":false});
+        } else {
+            request["reasoning_effort"] = self.reasoning_effort.clone().into();
+        }
+    }
     pub fn endpoint(&self, suffix: &str) -> String {
         format!("{}/{}", self.base_url.trim_end_matches('/'), suffix)
     }
@@ -260,6 +282,33 @@ pub(crate) fn archive_root(workspace: &Path, c: &LiveConfig) -> PathBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn deepseek_reasoning_controls_use_its_native_contract() {
+        let mut config = LiveConfig {
+            base_url: "https://api.deepseek.com/v1".into(),
+            ..Default::default()
+        };
+        for (mode, expected) in [
+            ("off", "none"),
+            ("low", "low"),
+            ("medium", "high"),
+            ("high", "high"),
+            ("xhigh", "max"),
+        ] {
+            config.reasoning_effort = mode.into();
+            let mut request = serde_json::json!({});
+            config.apply_reasoning(&mut request);
+            assert_eq!(request["reasoning_effort"], expected);
+            assert_eq!(
+                request["thinking"]["type"],
+                if mode == "off" { "disabled" } else { "enabled" }
+            );
+            assert!(request.get("chat_template_kwargs").is_none());
+        }
+        config.base_url = "https://api.deepseek.com.example.org/v1".into();
+        assert!(!config.is_deepseek());
+    }
+
     #[test]
     fn rejects_credentials_in_url_and_exhausted_budget() {
         let mut c = LiveConfig {

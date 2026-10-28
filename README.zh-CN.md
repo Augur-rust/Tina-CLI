@@ -4,7 +4,7 @@ Rust 终端 Agent：流式聊天、工作区工具、持久化会话与上下文
 
 [English](README.md) · [使用说明](docs/USAGE.md) · [上下文规则](docs/CONTEXT.md) · [构建说明](docs/BUILDING.md)
 
-**v0.1.0-alpha.2 候选版：**终端 UI 已接入 HTTP 模型客户端与真实工具进程，Windows 协议测试和终端操作测试已通过。真实模型验收仍待完成；当前候选包不代表模型质量或 GPU 性能验收。已公开的 alpha.1 仍是之前的 CPU 回放版本。
+**v0.1.0-alpha.2：**终端 UI 已接入 HTTP 模型客户端与真实工具进程，Windows 协议、终端操作和真实 DeepSeek 接入验收均已通过。这是产品联调验收，不是模型能力基准或本地 GPU 性能测试。
 
 ## Windows 使用
 
@@ -28,6 +28,17 @@ Rust 终端 Agent：流式聊天、工作区工具、持久化会话与上下文
 
 需要鉴权时，在自己的终端设置对应环境变量；也可配置 `--api-key-file C:\private\model-key.txt`。配置只保存引用，不写入密钥值。`tina.exe` 与 `cq-tool-host.exe` 应保持在同一个 `bin` 目录。Git 工具与项目记忆依赖 Git；运行 Tina 本身不需要 Python 或 GPU。
 
+## DeepSeek 快速接入
+
+环境里已设置 `DEEPSEEK_API_KEY` 后：
+
+```powershell
+.\bin\tina.exe configure --base-url https://api.deepseek.com/v1 --model deepseek-flash --api-key-env DEEPSEEK_API_KEY --thinking low --workspace C:\work\my-project
+.\bin\tina.exe chat
+```
+
+官方 DeepSeek 接口使用原生思考参数：`off` 关闭，`low` 对应 low，`medium`/`high` 对应 high，Tina 的 `xhigh` 对应 DeepSeek max。工具续写所需的 `reasoning_content` 单独归档，跨进程恢复和交接保留轮次时不会丢失。
+
 ## 已接入功能
 
 - 流式思考和回答、分片工具参数解析、真实工具结果回传。
@@ -50,7 +61,7 @@ Rust 终端 Agent：流式聊天、工作区工具、持久化会话与上下文
 
 ## 验证与开源
 
-Windows 已通过 **183 项 Rust 单元/进程测试、9 项 HTTP 协议测试**、上下文边界、格式和 Clippy 检查。终端测试验证了真实 `APPLY` 写文件、Ctrl-C 关闭连接及随后新建会话。测试模型输出来自固定夹具，不属于真实推理成绩。见[验证记录](docs/verification/summary.json)。
+Windows 已通过 **187 项 Rust 单元/进程测试、9 项 HTTP 协议测试**、上下文边界、格式和 Clippy 检查。终端测试验证了真实 `APPLY` 写文件、Ctrl-C 关闭连接及随后新建会话。另有 **7 项脚本与 4 项终端真实 DeepSeek 用例**通过，覆盖中英文回答、算术代码执行、思考模式工具续写、恢复、压缩、批准写入、切换思考模式，以及取消后继续请求。固定响应协议测试与真实 API 验收分别记录。见[验证记录](docs/verification/summary.json)。
 
 构建需要 Rust 1.96.0 和 MSVC C++ 工具。完整验证还需要 Python 3.11+ 标准库。支持 Windows ZIP、TAR.GZ、源码压缩包和 SHA256 校验。
 
