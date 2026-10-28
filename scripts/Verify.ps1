@@ -23,9 +23,11 @@ try {
     if ($rejectedCode -eq 0 -or $rejected.admitted -or $rejected.rejection.kind -ne 'usable-input-limit') { throw 'overflow admission did not fail correctly' }
     & cargo test --workspace --all-features --locked @extra
     if ($LASTEXITCODE -ne 0) { throw 'tests failed' }
+    & python (Join-Path $PSScriptRoot 'test_live_http.py') --binary $tina
+    if ($LASTEXITCODE -ne 0) { throw 'live HTTP protocol tests failed' }
     & cargo fmt --all -- --check
     if ($LASTEXITCODE -ne 0) { throw 'format check failed' }
     & cargo clippy --workspace --all-targets --all-features --locked @extra -- -D warnings
     if ($LASTEXITCODE -ne 0) { throw 'clippy failed' }
 } finally { Pop-Location }
-Write-Host 'PASS: build, tests, format and clippy. This does not qualify live LLM/GPU behavior.'
+Write-Host 'PASS: build, tests, format and clippy. Protocol fixtures do not qualify live model quality; see separate model acceptance.'

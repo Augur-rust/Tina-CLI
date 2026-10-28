@@ -12,11 +12,11 @@ The default contract has 262,144 physical positions and at least 4,096 reserved 
 | 253,952 | 8,192 | admitted at exact hard boundary |
 | 253,953 | 8,192 | rejected |
 
-At or above the soft handoff threshold, the model integration should assemble a smaller active context from immutable history and a handoff before its next model submission. `context-check` reports admission and pressure; it does not perform an automatic handoff or launch inference.
+At or above the soft handoff threshold, live chat assembles a smaller active context from immutable history and an extractive handoff before its next model submission. It preserves the latest complete turn plus current input. If there is no older complete turn, no handoff is possible; an oversized retained context is rejected without deleting history. `context-check` reports admission and pressure; it does not perform an automatic handoff or launch inference.
 
 The input limit remains capped at 258,048 even for larger development owners. Small owners reserve the requested output without silently reducing it. Empty input and an exhausted output reserve are rejected.
 
-The archive preserves full history independently of the active model context. Handoff/resume does not authorize copying stale logits or mutable KV into a new owner. The standalone replay uses conservative UTF-8 byte accounting for history packing and does not include a model tokenizer.
+The archive preserves full history independently of the active model context. Handoff/resume does not authorize copying stale logits or mutable KV into a new owner. Replay uses conservative UTF-8 byte accounting. Live chat initially estimates from serialized UTF-8/JSON bytes, then can anchor to reported prompt usage only when the entire previous message prefix and tool definitions still match. Changed prefixes return to conservative accounting. Neither path includes a local model tokenizer. A server capacity rejection can trigger a retry only after a real handoff; completed tool effects are not replayed.
 
 The 32 MiB serialized prompt/document guard bounds input bytes. It is not a 32-million-token context or a guarantee that every document below it fits a model. JSON escaping and prompt metadata are included in serialized size.
 

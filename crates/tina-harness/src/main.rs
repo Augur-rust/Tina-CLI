@@ -1,8 +1,11 @@
-//! Standalone CPU validation interface; live model/GPU integration is separate.
+//! Live terminal agent with a separate CPU validation/replay interface.
 #![allow(dead_code)]
 mod context_budget;
 mod conversation_memory;
 mod host_environment;
+mod live_chat;
+mod live_config;
+mod model_client;
 mod plugin;
 mod project_memory;
 mod replay;
@@ -22,7 +25,7 @@ use std::{
 
 type Error = Box<dyn std::error::Error>;
 fn help() {
-    println!("Tina CLI CPU verification package 0.1.0-alpha.1\n\nThis binary uses scripted completions, not an LLM. Tool processes and archives are real.\n\nCommands:\n  tina context-check --input-tokens N [--output-tokens N] [--context-positions N]\n  tina doctor --workspace DIR\n  tina prompt --workspace DIR --request TEXT [--format dsml]\n  tina replay --workspace DIR --scenario FILE --archive DIR [--resume] [--tool-host FILE]\n\nReplay never auto-approves writes, deletion, or command execution.\nThe original interactive/GPU integration is included as source under integration/.");
+    println!("Tina CLI {} — interactive agent + verification tools\n\nChat connects to your configured model endpoint. Replay uses scripted completions.\n\nCommands:\n  tina configure [--augur | --base-url URL --model ID]\n  tina chat --workspace DIR [--resume] [--request TEXT] [--read-only]\n  tina context-check --input-tokens N [--output-tokens N] [--context-positions N]\n  tina doctor --workspace DIR\n  tina prompt --workspace DIR --request TEXT [--format dsml]\n  tina replay --workspace DIR --scenario FILE --archive DIR [--resume] [--tool-host FILE]\n\nReplay never auto-approves writes, deletion, or command execution.\nConfigure credentials via TINA_API_KEY or --api-key-file PATH. Use tina chat --help for options.", env!("CARGO_PKG_VERSION"));
 }
 fn option(args: &[String], name: &str) -> Option<String> {
     args.windows(2).find(|w| w[0] == name).map(|w| w[1].clone())
@@ -56,8 +59,72 @@ fn read_scenario(path: &Path) -> Result<replay::Scenario, Error> {
     Ok(serde_json::from_slice(&bytes)?)
 }
 fn execute() -> Result<(), Error> {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+    let mut args: Vec<String> = std::env::args().skip(1).collect();
+    if args.is_empty() {
+        use std::io::IsTerminal;
+        if !std::io::stdin().is_terminal() {
+            help();
+            return Ok(());
+        }
+        if !live_config::config_path(&args).is_file() {
+            live_config::configure(&["configure".into()])?;
+        }
+        args.push("chat".into());
+    }
     let command = args.first().map(String::as_str).unwrap_or("--help");
+    if ["--version", "-V", "version"].contains(&command) {
+        println!("Tina CLI {}", env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+    if ["chat", "configure"].contains(&command) {
+        if args.iter().any(|a| a == "--help" || a == "-h") {
+            println!("Tina live chat: configure an OpenAI-compatible /v1 endpoint, then run tina chat.\nOptions: --config FILE --base-url URL --model ID --api-key-env NAME --api-key-file FILE\n --workspace DIR --archive DIR --resume --resume-conversation ID --request TEXT\n --context-positions N --max-tokens N --timeout-seconds N --max-steps N\n --language zh|en|auto --thinking off|low|medium|high|xhigh --tool-host FILE\n --read-only --chat-only --no-splash\nConfigure: tina configure --augur (import local Augur endpoint and key-file reference)");
+            return Ok(());
+        }
+        let flags = if command == "configure" {
+            vec!["--augur"]
+        } else {
+            vec!["--resume", "--read-only", "--chat-only", "--no-splash"]
+        };
+        let values = [
+            "--config",
+            "--base-url",
+            "--model",
+            "--api-key-env",
+            "--api-key-file",
+            "--workspace",
+            "--archive",
+            "--resume-conversation",
+            "--request",
+            "--context-positions",
+            "--max-tokens",
+            "--timeout-seconds",
+            "--max-steps",
+            "--language",
+            "--thinking",
+            "--tool-host",
+        ];
+        let mut seen = std::collections::BTreeSet::new();
+        let mut i = 1;
+        while i < args.len() {
+            if !seen.insert(args[i].clone()) {
+                return Err(format!("Duplicate option {}", args[i]).into());
+            }
+            if flags.contains(&args[i].as_str()) {
+                i += 1;
+                continue;
+            }
+            if !values.contains(&args[i].as_str()) || i + 1 >= args.len() {
+                return Err(format!("Invalid or incomplete option {}", args[i]).into());
+            }
+            i += 2;
+        }
+        if command == "configure" {
+            live_config::configure(&args)?;
+            return Ok(());
+        }
+        return live_chat::run(&args);
+    }
     if ["--help", "-h", "help"].contains(&command) {
         help();
         return Ok(());

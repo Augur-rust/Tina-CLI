@@ -1,6 +1,6 @@
 [package]
 name = "tina-harness"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 publish = false
@@ -12,6 +12,8 @@ sha2 = "0.10.9"
 crossterm = "0.28.1"
 unicode-width = "0.2.2"
 tina-protocol = { path = "../tina-protocol" }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+tokio = { version = "1", features = ["rt-multi-thread", "time", "macros", "net", "sync"] }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Security", "Win32_System_JobObjects", "Win32_System_Threading"] }

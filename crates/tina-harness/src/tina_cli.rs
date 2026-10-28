@@ -147,8 +147,8 @@ const SLASH_COMMAND_SPECS: &[SlashCommandSpec] = &[
     SlashCommandSpec {
         name: "/thinking",
         chinese_name: "/思考",
-        description: "choose off, medium, high, or max reasoning",
-        chinese_description: "选择 off、medium、high 或 max 思考级别",
+        description: "choose off, low, medium, high, or xhigh reasoning",
+        chinese_description: "选择 off、low、medium、high 或 xhigh 思考级别",
     },
     SlashCommandSpec {
         name: "/status",
@@ -159,8 +159,8 @@ const SLASH_COMMAND_SPECS: &[SlashCommandSpec] = &[
     SlashCommandSpec {
         name: "/context",
         chinese_name: "/上下文",
-        description: "show the 258K activity-context budget",
-        chinese_description: "查看 258K 活动上下文预算",
+        description: "show the configured context budget",
+        chinese_description: "查看当前配置的上下文预算",
     },
     SlashCommandSpec {
         name: "/help",
@@ -1898,6 +1898,46 @@ impl TinaCli {
         out.flush()
     }
 
+    pub(crate) fn start_live(
+        &mut self,
+        model: &str,
+        endpoint: &str,
+        capacity: usize,
+        thinking: &str,
+    ) -> io::Result<()> {
+        if !self.interactive {
+            return Ok(());
+        }
+        let rows = [
+            format!(
+                "{} · {}",
+                terminal_safe_line(model),
+                terminal_safe_line(endpoint)
+            ),
+            format!(
+                "{} · {} · context {} · thinking {}",
+                startup_os_label(),
+                startup_shell_label(),
+                compact_count(capacity),
+                thinking
+            ),
+        ];
+        let mut out = io::stdout().lock();
+        for line in startup_frame_lines(
+            &format!("TINA CLI · {}", self.assistant_id()),
+            "LIVE",
+            &rows,
+            composer_width(),
+        ) {
+            write_styled(&mut out, MOON_BRIGHT, self.color, &format!("{line}\r\n"))?;
+        }
+        write!(
+            out,
+            "\r\n  /help · /context · /new · /resume · Ctrl-C cancel\r\n\r\n"
+        )?;
+        out.flush()
+    }
+
     pub(crate) fn read_message(
         &mut self,
         context_positions: usize,
@@ -2234,11 +2274,16 @@ impl TinaCli {
     ) -> io::Result<()> {
         let mut out = io::stdout().lock();
         let rate = generated_tokens as f64 / elapsed_seconds.max(f64::EPSILON);
+        let rate_text = if generated_tokens == 0 {
+            "usage unavailable".to_string()
+        } else {
+            format!("{rate:.1} tok/s")
+        };
         if self.interactive && self.assistant_frame_open.get() {
             let left = if self.language.is_chinese() {
-                format!(" FAST · 本轮 {rate:.1} tok/s ")
+                format!(" HTTP · 本轮 {rate_text} ")
             } else {
-                format!(" FAST · {rate:.1} tok/s ")
+                format!(" HTTP · {rate_text} ")
             };
             let right = format!(
                 " {}/{} ",
@@ -2254,15 +2299,15 @@ impl TinaCli {
         write_block_gap(&mut out, UI_BLOCK_GAP_LINES)?;
         let status = if self.language.is_chinese() {
             format!(
-                "  · FAST · 本轮 {:.1} tok/s · 上下文 {}/{}\r\n",
-                rate,
+                "  · HTTP · 本轮 {} · 上下文 {}/{}\r\n",
+                rate_text,
                 compact_count(committed_positions),
                 compact_count(capacity),
             )
         } else {
             format!(
-                "  · FAST · {:.1} tok/s turn · {}/{} positions\r\n",
-                rate,
+                "  · HTTP · {} turn · {}/{} positions\r\n",
+                rate_text,
                 compact_count(committed_positions),
                 compact_count(capacity),
             )

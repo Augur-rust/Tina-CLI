@@ -4,3 +4,4 @@
 *.png binary
 *.zip binary
 *.patch -whitespace
+third-party/licenses/** -whitespace

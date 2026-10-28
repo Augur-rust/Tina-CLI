@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.1.0-alpha.2 — candidate, 2026-10-28
+
+- Connect the terminal UI to streaming Chat Completions and the real workspace tool host.
+- Add first-run setup, Augur config import, credential references and Windows launchers.
+- Wire explicit edit/execute approvals, socket cancellation, sessions, resume, context handoff and read-only review.
+- Bound stream parsing and reject truncated or malformed tool completions before execution.
+- Reuse server token usage only after checking unchanged message prefixes and tool definitions; label estimates and HTTP throughput explicitly.
+- Add executable protocol tests, terminal acceptance evidence and updated third-party notices.
+- Real-model acceptance and public promotion remain pending; protocol fixtures are not quality evidence.
+
 ## v0.1.0-alpha.1 — 2026-10-28
 
 First public standalone Tina CLI release.

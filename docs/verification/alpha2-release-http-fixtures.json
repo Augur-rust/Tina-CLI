@@ -1,0 +1,52 @@
+{
+  "schema": "tina.live-http-fixture-tests.v1",
+  "model_inference": false,
+  "cases": [
+    {
+      "case": "read",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "write-denied",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "unknown",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "length",
+      "exit_code": 1,
+      "status": "PASS"
+    },
+    {
+      "case": "truncated",
+      "exit_code": 1,
+      "status": "PASS"
+    },
+    {
+      "case": "invalid-args",
+      "exit_code": 1,
+      "status": "PASS"
+    },
+    {
+      "case": "server-error",
+      "exit_code": 1,
+      "status": "PASS"
+    },
+    {
+      "case": "read",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "handoff",
+      "exit_code": 0,
+      "status": "PASS"
+    }
+  ],
+  "count": 9
+}

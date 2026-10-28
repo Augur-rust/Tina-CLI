@@ -1,0 +1,298 @@
+   Compiling cq-tool-host v0.1.0 (<workspace>\crates\cq-tool-host)
+   Compiling tina-harness v0.1.0-alpha.2 (<workspace>\crates\tina-harness)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.11s
+   Compiling cq-tool-host v0.1.0 (<workspace>\crates\cq-tool-host)
+   Compiling tina-harness v0.1.0-alpha.2 (<workspace>\crates\tina-harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.43s
+     Running unittests src\lib.rs (target\debug\deps\cq_retrieval-869084f38d2935d0.exe)
+
+running 16 tests
+test distance::tests::invalid_vectors_fail_closed ... ok
+test protocol::tests::disabled_or_future_hits_fail_before_mutation ... ok
+test distance::tests::rerank_is_exact_bounded_and_deterministic ... ok
+test distance::tests::runtime_dispatch_matches_scalar_with_tail ... ok
+test usearch_backend::tests::invalid_identity_fails_before_native_construction ... ok
+test distance::tests::rerank_failure_does_not_publish_partial_results ... ok
+test protocol::tests::identity_and_config_are_bounded ... ok
+test protocol::tests::recall_and_benefit_are_separate_gates ... ok
+test protocol::tests::score_order_and_duplicates_fail_closed ... ok
+test distance::tests::scalar_metrics_use_higher_is_better_scores ... ok
+test semantic_memory::tests::document_hashes_and_snapshot_paths_fail_closed ... ok
+test protocol::tests::causal_set_merges_local_and_retrieved_in_position_order ... ok
+test usearch_backend::tests::malformed_vectors_and_k_fail_at_rust_boundary ... ok
+test usearch_backend::tests::f32_index_returns_bounded_candidates ... ok
+test usearch_backend::tests::saved_index_round_trips_vectors_and_search ... ok
+test semantic_memory::tests::real_provider_boundary_persists_and_exactly_reranks_usearch_candidates ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src\lib.rs (target\debug\deps\cq_tool_host-82a55f5ef2d93802.exe)
+
+running 22 tests
+test tests::protocol_errors_are_utf8_safe_and_bounded ... ok
+test tests::searxng_receipt_is_bounded_deduplicated_and_marked_untrusted ... ok
+test tests::jsonl_reader_rejects_an_oversized_frame_then_resynchronizes ... ok
+test tests::malformed_and_unknown_requests_fail_closed ... ok
+test tests::capabilities_identify_the_bounded_write_surface ... ok
+test tests::full_machine_scope_cannot_alias_the_anchor_or_tina_control_data ... ok
+test tests::workspace_exec_rejects_shell_escape_and_boundary_flags_before_spawn ... ok
+test tests::read_is_workspace_relative_and_bounded ... ok
+test tests::output_limit_never_splits_utf8 ... ok
+test tests::output_limit_creates_artifact_and_digest ... ok
+test tests::apply_patch_rejects_full_overwrite_binary_and_control_data ... ok
+test tests::search_and_list_are_deterministic ... ok
+test tests::stale_or_ambiguous_patch_leaves_the_original_unchanged ... ok
+test tests::workspace_mutations_reject_escape_root_and_control_paths ... ok
+test tests::apply_patch_requires_the_current_hash_and_atomically_replaces_exact_text ... ok
+test tests::web_search_capability_requires_an_explicit_valid_provider ... ok
+test tests::workspace_mutations_reject_link_components ... ok
+test tests::workspace_scope_supports_the_bounded_file_lifecycle ... ok
+test tests::full_machine_scope_requires_explicit_mode_and_supports_file_lifecycle ... ok
+test tests::web_search_executes_a_real_bounded_loopback_provider_request ... ok
+test tests::workspace_exec_returns_an_explicit_terminal_receipt ... ok
+test tests::shell_reclaims_background_descendants_after_the_parent_exits ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running unittests src\main.rs (target\debug\deps\cq_tool_host-98ae536c56171b67.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\jsonl_process.rs (target\debug\deps\jsonl_process-2ee2acd3aefdacaa.exe)
+
+running 3 tests
+test binary_handshake_read_patch_and_search_share_one_bounded_jsonl_session ... ok
+test configured_web_search_is_advertised_without_full_machine_network_access ... ok
+test full_access_binary_advertises_and_executes_the_machine_surface ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running unittests src\main.rs (target\debug\deps\tina-8bcf3f640b1efcde.exe)
+
+running 130 tests
+test context_budget::tests::byte_guards_do_not_preempt_the_calibrated_token_budget ... ok
+test context_budget::tests::product_input_admission_preserves_the_exact_output_reserve_boundary ... ok
+test context_budget::tests::physical_kv_and_output_reserve_override_nominal_95_percent ... ok
+test context_budget::tests::smaller_development_owner_never_claims_256k_support ... ok
+test context_budget::tests::small_owner_rejects_an_exhausting_output_reserve_without_clamping ... ok
+test context_budget::tests::pressure_state_boundaries_are_exact_and_monotonic ... ok
+test context_budget::tests::requested_output_can_only_shrink_the_usable_input_limit ... ok
+test conversation_memory::tests::memory_context_budget_parser_is_bounded ... ok
+test conversation_memory::tests::detected_host_environment_is_agent_only_not_an_archived_turn ... ok
+test conversation_memory::tests::exact_retrieval_prefers_user_authored_ties_and_is_deterministic ... ok
+test conversation_memory::tests::generic_truncation_without_an_artifact_is_rejected ... ok
+test conversation_memory::tests::fresh_conversation_retains_the_previous_archive ... ok
+test conversation_memory::tests::archive_round_trip_preserves_stable_ids_and_epoch_causality ... ok
+test host_environment::tests::normalizes_supported_shell_names ... ok
+test host_environment::tests::ordinary_chat_prompt_uses_process_cwd_as_workspace ... ok
+test conversation_memory::tests::committed_corruption_fails_closed_while_temporary_files_are_ignored ... ok
+test host_environment::tests::prompt_forbids_cross_platform_shell_drift ... ok
+test host_environment::tests::terminal_labels_and_paths_cannot_inject_prompt_lines ... ok
+test live_chat::tests::removed_messages_or_smaller_serialization_cannot_reuse_usage ... ok
+test live_config::tests::archives_are_scoped_by_workspace_endpoint_and_model ... ok
+test live_chat::tests::server_usage_only_anchors_an_unchanged_prefix_and_tools ... ok
+test live_config::tests::rejects_credentials_in_url_and_exhausted_budget ... ok
+test model_client::tests::malformed_or_duplicate_tool_arguments_rejected ... ok
+test conversation_memory::tests::export_requires_explicit_overwrite_and_validates_destination ... ok
+test conversation_memory::tests::resume_starts_a_fresh_epoch_without_losing_archive_history ... ok
+test model_client::tests::mixed_sse_delimiters_in_one_chunk_keep_event_order ... ok
+test model_client::tests::truncation_never_authorizes_a_tool ... ok
+test model_client::tests::sse_utf8_and_tool_arguments_can_split_at_every_byte ... ok
+test conversation_memory::tests::agent_events_round_trip_and_require_invocation_order ... ok
+test plugin::tests::chinese_dispatch_localizes_host_notices_without_translating_ids ... ok
+test conversation_memory::tests::resume_cancels_an_interrupted_agent_call_without_replay ... ok
+test conversation_memory::tests::exports_active_messages_as_importable_jsonl_and_markdown ... ok
+test plugin::tests::discovers_and_dispatches_declarative_prompt_command ... ok
+test conversation_memory::tests::reopen_rotates_the_selected_archive_into_a_fresh_epoch ... ok
+test conversation_memory::tests::retry_accepts_a_retained_user_turn_from_an_older_epoch ... ok
+test plugin::tests::multi_command_plugin_requires_and_routes_command_name ... ok
+test conversation_memory::tests::bounded_execution_truncation_is_an_honest_terminal_result_without_an_artifact ... ok
+test replay::byte_guard_tests::byte_guard_allows_old_one_mib_boundary_and_rejects_above_32_mib ... ok
+test plugin::tests::mutating_capabilities_are_fail_closed ... ok
+test plugin::tests::malformed_or_duplicate_plugins_are_ignored_deterministically ... ok
+test conversation_memory::tests::handoff_retains_recent_complete_turns_and_records_provenance ... ok
+test conversation_memory::tests::todo_remove_and_clear_completed_are_immutable_replay_events ... ok
+test conversation_memory::tests::retry_excludes_superseded_assistant_and_tool_events_after_recovery ... ok
+test conversation_memory::tests::todo_list_is_persistent_and_injected_without_completed_items ... ok
+test conversation_memory::tests::context_packing_never_exceeds_the_token_budget ... ok
+test conversation_memory::tests::session_goal_is_an_immutable_event_and_survives_recovery ... ok
+test model_client::tests::cancellation_closes_socket_before_first_token ... ok
+test project_memory::tests::non_git_workspace_is_unavailable_and_never_falls_back_to_a_file ... ok
+test replay_tests::replay_cancellation_prevents_tool_execution ... ok
+test splash::tests::auto_sixel_selection_is_conservative ... ok
+test splash::tests::compact_tina_is_small_and_readable ... ok
+test splash::tests::no_color_tina_is_control_sequence_free ... ok
+test splash::tests::normalise_size_rejects_extreme_values ... ok
+test splash::tests::only_auto_tina_and_sixel_are_selectable ... ok
+test splash::tests::sixel_assets_are_palette_encoded_and_terminated ... ok
+test splash::tests::sixel_resolution_tracks_terminal_size ... ok
+test splash::tests::tina_wordmark_mask_and_gradient_are_stable ... ok
+test splash::tests::tina_wordmark_uses_brand_colors_and_fits ... ok
+test splash::tests::vscode_always_selects_tina ... ok
+test tina_cli::tests::assistant_id_is_configurable_but_terminal_safe ... ok
+test tina_cli::tests::assistant_language_and_help_commands_are_local_only ... ok
+test tina_cli::tests::assistant_output_escapes_terminal_controls_but_keeps_layout_whitespace ... ok
+test tina_cli::tests::assistant_reflection_keeps_a_fixed_width_for_every_phase ... ok
+test tina_cli::tests::assistant_stream_chunks_keep_borders_and_escape_controls ... ok
+test tina_cli::tests::assistant_stream_uses_bright_moon_white_without_leaking_style ... ok
+test tina_cli::tests::chinese_product_notices_are_localized_without_changing_protocol_names ... ok
+test tina_cli::tests::composer_interrupt_clears_a_draft_before_it_exits ... ok
+test tina_cli::tests::composer_placeholder_disappears_when_editing_begins ... ok
+test tina_cli::tests::context_status_is_explicit_about_unmeasured_gpu_cache ... ok
+test tina_cli::tests::deletion_interceptor_requires_exact_confirmation ... ok
+test tina_cli::tests::display_fitting_handles_narrow_and_wide_text ... ok
+test tina_cli::tests::edit_preview_is_bounded_and_control_safe ... ok
+test tina_cli::tests::editor_insert_and_delete_respect_char_boundaries ... ok
+test tina_cli::tests::execution_interceptor_requires_exact_confirmation ... ok
+test tina_cli::tests::exit_commands_are_local_only ... ok
+test tina_cli::tests::export_command_preserves_paths_and_infers_safe_formats ... ok
+test tina_cli::tests::goal_and_thinking_commands_are_bounded_and_alias_safe ... ok
+test tina_cli::tests::mutating_approval_is_fail_closed_without_a_terminal ... ok
+test tina_cli::tests::notices_escape_terminal_controls ... ok
+test tina_cli::tests::overwrite_confirmation_requires_exact_text ... ok
+test tina_cli::tests::paste_limit_warning_is_localized_and_explicit ... ok
+test tina_cli::tests::patch_interceptor_requires_exact_confirmation ... ok
+test tina_cli::tests::product_frames_match_the_demo_width_and_user_label ... ok
+test tina_cli::tests::resume_command_requires_latest_or_a_full_lowercase_id ... ok
+test tina_cli::tests::session_commands_are_explicit_and_local ... ok
+test tina_cli::tests::slash_commands_are_separated_from_model_prompts ... ok
+test tina_cli::tests::slash_popup_filters_localizes_and_selects_commands ... ok
+test tina_cli::tests::slash_popup_selection_wraps_and_rendering_is_bounded ... ok
+test tina_cli::tests::startup_frame_is_cell_width_safe ... ok
+test tina_cli::tests::tab_completion_is_scoped_to_slash_command_prefixes ... ok
+test tina_cli::tests::tools_text_discloses_execution_surfaces_by_scope ... ok
+test tina_cli::tests::ui_language_accepts_explicit_english_chinese_and_auto ... ok
+test tina_cli::tests::web_search_control_requires_a_real_provider_and_bounds_queries ... ok
+test tina_cli::tests::workspace_commands_keep_diff_argument_free_and_bound_review_focus ... ok
+test tina_cli::tests::workspace_diff_text_uses_explicit_empty_markers ... ok
+test tina_cli::tests::wraps_explicit_newlines_and_keeps_empty_tail ... ok
+test tina_cli::tests::wraps_unicode_without_splitting_utf8 ... ok
+test todo_cli::tests::parser_is_explicit_and_preserves_task_text ... ok
+test todo_cli::tests::rendering_uses_stable_indices_ids_and_status_counts ... ok
+test tool_host_client::tests::apply_patch_summary_is_bounded_and_rejects_noop_edits ... ok
+test tool_host_client::tests::capability_handshake_exposes_the_frozen_read_and_write_sets ... ok
+test tool_host_client::tests::delete_summary_is_bounded_before_environment_confirmation ... ok
+test tool_host_client::tests::file_lifecycle_summaries_are_bounded_and_reject_unknown_fields ... ok
+test tool_host_client::tests::prompt_content_is_structured_and_bounded_by_the_host_receipt ... ok
+test tool_host_client::tests::real_host_client_handshake_and_read_when_binary_is_provided ... ok
+test replay_tests::replay_incomplete_completion_never_executes_tool ... ok
+test tool_host_client::tests::result_receipts_fail_closed_on_hash_and_artifact_drift ... ok
+test tool_host_client::tests::response_frame_covers_worst_case_json_escaping ... ok
+test tool_host_client::tests::workspace_exec_summary_matches_the_direct_argv_policy ... ok
+test tool_transaction::tests::budget_arithmetic_overflow_fails_without_mutation ... ok
+test tool_transaction::tests::budget_ledger_rejects_each_limit_without_overcounting ... ok
+test tool_transaction::tests::call_ids_are_deterministic_and_ordinal_sensitive ... ok
+test tool_transaction::tests::results_and_arguments_are_bounded_before_state_mutation ... ok
+test tool_transaction::tests::terminal_transactions_cannot_be_reused_or_cancelled ... ok
+test tool_transaction::tests::transaction_requires_approval_before_execution ... ok
+test tool_host_client::tests::truncated_artifact_is_rehashed_before_the_receipt_is_accepted ... ok
+test replay_tests::replay_post_effect_budget_failure_keeps_actual_write_status ... ok
+test replay_tests::replay_denies_write_even_when_fixture_requests_it ... ok
+test replay_tests::replay_step_limit_stops_without_false_completion ... ok
+test replay_tests::replay_path_escape_returns_failure_without_reading_outside ... ok
+test replay_tests::replay_review_rejects_write_before_approval_callback ... ok
+test replay_tests::replay_unknown_tool_is_denied ... ok
+test replay_tests::replay_zero_call_budget_denies_before_dispatch ... ok
+test replay_tests::replay_read_receipt_round_trip_and_resume ... ok
+test replay_tests::large_prompt_preserves_user_content_above_old_byte_ceiling ... ok
+test project_memory::tests::credentials_are_rejected_before_git_objects_are_written ... ok
+test project_memory::tests::packing_is_bounded_and_marks_project_facts_as_untrusted_history ... ok
+test project_memory::tests::malformed_ref_fails_closed ... ok
+test project_memory::tests::duplicate_fact_is_idempotent_and_forget_requires_exact_delete ... ok
+test project_memory::tests::append_uses_a_dedicated_ref_without_touching_head_index_or_worktree ... ok
+
+test result: ok. 130 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.09s
+
+     Running unittests src\lib.rs (target\debug\deps\tina_protocol-fea96c9b62e7285e.exe)
+
+running 12 tests
+test dsv4_tool_parser::tests::parses_plain_thinking_completion ... ok
+test dsv4_tool_parser::tests::rejects_duplicate_parameters_and_trailing_content ... ok
+test dsv4_0731_encoding::tests::strict_json_fail_closed_is_inherited ... ok
+test dsv4_tool_parser::tests::parses_string_and_json_parameters ... ok
+test dsv4_tool_parser::tests::rejects_missing_eos_and_invalid_json ... ok
+test m114_encoding::tests::duplicate_json_keys_fail_closed ... ok
+test dsv4_0731_encoding::tests::max_without_bos_starts_with_the_new_prefix ... ok
+test dsv4_0731_encoding::tests::chat_ignores_reasoning_effort ... ok
+test m114_encoding::tests::tool_arguments_preserve_strings_and_json_values ... ok
+test m114_encoding::tests::basic_thinking_and_drop_thinking_match_official_order ... ok
+test dsv4_0731_encoding::tests::official_0731_reasoning_effort_hashes_match_python ... ok
+test dsv4_0731_encoding::tests::max_prefix_follows_bos_and_high_reuses_the_frozen_prefix ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests cq_retrieval
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests cq_tool_host
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tina_protocol
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+{
+  "schema": "tina.live-http-fixture-tests.v1",
+  "model_inference": false,
+  "cases": [
+    {
+      "case": "read",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "write-denied",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "unknown",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "length",
+      "exit_code": 1,
+      "status": "PASS"
+    },
+    {
+      "case": "truncated",
+      "exit_code": 1,
+      "status": "PASS"
+    },
+    {
+      "case": "invalid-args",
+      "exit_code": 1,
+      "status": "PASS"
+    },
+    {
+      "case": "server-error",
+      "exit_code": 1,
+      "status": "PASS"
+    },
+    {
+      "case": "read",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "case": "handoff",
+      "exit_code": 0,
+      "status": "PASS"
+    }
+  ],
+  "count": 9
+}
+    Checking tina-harness v0.1.0-alpha.2 (<workspace>\crates\tina-harness)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.42s
+PASS: build, tests, format and clippy. Protocol fixtures do not qualify live model quality; see separate model acceptance.

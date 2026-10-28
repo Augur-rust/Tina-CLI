@@ -1,23 +1,37 @@
-# Building and running
+# Building, testing and packaging
 
-Use the pinned Rust 1.96.0 toolchain and committed Cargo.lock. Git must be on PATH for Git tools and demo workspaces. Windows builds require the MSVC C++ build tools.
+Use the pinned Rust 1.96.0 toolchain and committed Cargo.lock. Windows builds require MSVC C++ build tools. Git must be on PATH. Verification scripts require Python 3.11+ using only its standard library; the two runtime executables do not depend on Python.
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Verify.ps1
+.\scripts\Verify.ps1
 cargo build --workspace --release --locked
-.\target\release\tina.exe doctor --workspace .
-.\target\release\tina.exe context-check --input-tokens 258048
-.\target\release\tina.exe replay --workspace . --scenario fixtures/read-and-status.json --archive C:\path\to\new-archive
+.\target\release\tina.exe chat --workspace C:\work\my-project
 ```
 
-The supplied fixture expects `sample.txt`; use `scripts/Run-Demo.ps1` from a packaged release to create the example workspace automatically. Keep `tina.exe` and `cq-tool-host.exe` in the same directory, or pass `--tool-host` explicitly for doctor/replay.
+`Verify.ps1` builds both executables before running tests: some tests launch the real sibling `cq-tool-host.exe`. It checks caller-supplied context boundaries, all-feature Rust tests, executable HTTP fixtures, rustfmt and Clippy with warnings denied. Use `-Offline` after dependencies are cached.
 
-For an offline build after dependencies are cached, pass `-Offline` to Verify.ps1. USEARCH is optional and exercised by the all-features tests. Release binaries use default features and do not bundle an embedding model.
+USEARCH is optional and exercised in all-feature tests. Release binaries use default features; no embedding model is bundled. `Run-Demo.cmd` still runs a CPU-only read/Git replay in a fresh temporary workspace. Real model quality is evaluated separately from deterministic transport fixtures.
 
-To build release archives and their checksums:
+## License inventory
+
+After changing dependencies:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Package.ps1
+python scripts/update_notices.py
 ```
 
-Output goes under `dist/`. Packaging uses committed files (`git ls-files`), so commit source changes first. It excludes local session history, secrets, target directories and development logs. The Windows bundle contains the source plus the two executables. `scripts/Verify-Integrity.ps1` verifies its file checksums.
+The script uses the locked Windows all-feature dependency graph and preserves the recorded upstream USearch notice. Review newly added licenses and keep the inventory, lockfile and notices together. It does not export Cargo registry paths or credentials.
+
+## Windows archives
+
+After verification, commit the intended source changes and run:
+
+```powershell
+.\scripts\Package.ps1
+```
+
+Output goes under `dist/vVERSION-COMMIT/`. Packaging requires a clean checkout and uses committed tracked files. The Windows ZIP and TAR.GZ include source, documentation, both executables, `Start-Tina.cmd`, `Configure-Tina.cmd`, `Run-Demo.cmd`, a source commit marker and per-file hashes. Separate source ZIP and TAR.GZ archives and outer `SHA256SUMS.txt` are produced. `scripts/Verify-Integrity.ps1` checks the extracted bundle.
+
+Run `python scripts/test_live_http.py --binary <bundle>\bin\tina.exe` against the extracted release too. Test approved writes and cancellation in an actual interactive terminal; redirected protocol tests alone do not exercise raw-mode input. Record real-model checks separately before promoting a candidate release. A local package does not itself publish a Git tag or GitHub release.
+
+Windows x86_64 is the qualified build platform. There is no Linux binary package in this release.

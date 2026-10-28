@@ -50,9 +50,10 @@
     {
       "source": "crates/cq-infer/src/tina_cli.rs",
       "destination": "crates/tina-harness/src/tina_cli.rs",
-      "sha256": "8bb14e345c2cc6bc1ef84c9ff3893c0bdac5a76a02c4104cd877cbd9c89ffcb9",
-      "kind": "unchanged",
-      "source_sha256": "8bb14e345c2cc6bc1ef84c9ff3893c0bdac5a76a02c4104cd877cbd9c89ffcb9"
+      "sha256": "3543f873f76314cb2c2dbb3178373f89a042d7b31642cbce1df9210cc8177701",
+      "kind": "adapted",
+      "source_sha256": "8bb14e345c2cc6bc1ef84c9ff3893c0bdac5a76a02c4104cd877cbd9c89ffcb9",
+      "adaptation": "Standalone live terminal integration, context fixes, documentation or LF normalization; see release_adaptations and CHANGELOG.md."
     },
     {
       "source": "crates/cq-infer/src/todo_cli.rs",
@@ -292,7 +293,7 @@
     }
   ],
   "note": "Base source hashes are preserved in source_sha256; sha256 describes the released file. Original engine integration is frozen reference source; standalone wrappers, fixes, tests and release metadata are adaptations.",
-  "release_version": "0.1.0-alpha.1",
+  "release_version": "0.1.0-alpha.2",
   "release_date": "2026-10-28",
   "release_adaptations": [
     {
@@ -316,6 +317,57 @@
         "crates/tina-harness/src/main.rs"
       ],
       "details": "32 MiB serialized prompt guard, large input regression and standalone context-check command."
+    },
+    {
+      "files": [
+        "crates/tina-harness/src/live_chat.rs",
+        "crates/tina-harness/src/live_config.rs",
+        "crates/tina-harness/src/model_client.rs",
+        "scripts/test_live_http.py",
+        "scripts/update_notices.py",
+        "Start-Tina.cmd",
+        "Configure-Tina.cmd",
+        "crates/tina-harness/src/main.rs",
+        "crates/tina-harness/src/tina_cli.rs"
+      ],
+      "details": "Live endpoint configuration, cancellable streaming HTTP, request-bound tool approvals, terminal command integration, immutable handoff, usage prefix validation and Windows launchers; no engine binaries/weights bundled."
+    }
+  ],
+  "standalone_files": [
+    {
+      "path": "crates/tina-harness/src/live_chat.rs",
+      "sha256": "4bd9b4be5987cd1e3f4fc827f828a2aa2e9a2454ec9e8ccdf73891d6cecead9a",
+      "kind": "new standalone implementation"
+    },
+    {
+      "path": "crates/tina-harness/src/live_config.rs",
+      "sha256": "ad7a999dbca3ccb86f8fdcdce9bae58bf329d439e80dee92b066097d5e5d257a",
+      "kind": "new standalone implementation"
+    },
+    {
+      "path": "crates/tina-harness/src/model_client.rs",
+      "sha256": "6d72b0cd8cc21d0019e6fbf7757829eebbdff43a31f6141e6dbcaf2b6b9ae5cb",
+      "kind": "new standalone implementation"
+    },
+    {
+      "path": "scripts/test_live_http.py",
+      "sha256": "6d766fde32a786b9dd524658c57de316af8a83c971ed159ec79c1d39e92b45d6",
+      "kind": "new standalone implementation"
+    },
+    {
+      "path": "scripts/update_notices.py",
+      "sha256": "fc8d4020569efa19600576ad25cf0a34077e7cafc22c2c024147dc9de36b674c",
+      "kind": "new standalone implementation"
+    },
+    {
+      "path": "Start-Tina.cmd",
+      "kind": "new standalone implementation",
+      "sha256_lf_normalized": "8a684f1d1e7c72e64a5ec344f7460fdea5b273961d2f859a371cc2101e04b503"
+    },
+    {
+      "path": "Configure-Tina.cmd",
+      "kind": "new standalone implementation",
+      "sha256_lf_normalized": "c5b4a6886124651d28e4fdf6b375f2c3adf1ca64113585d6a87cfbb7c1e0d58a"
     }
   ]
 }

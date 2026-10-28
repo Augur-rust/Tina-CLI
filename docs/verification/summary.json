@@ -1,15 +1,29 @@
 {
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
+  "status": "CANDIDATE_NOT_PUBLISHED",
   "date": "2026-10-28",
   "platform": "x86_64-pc-windows-msvc",
   "rust": "1.96.0",
-  "unit_and_process_tests": 174,
-  "context_check_release_cases": 9,
+  "unit_and_process_tests": 183,
+  "executable_http_fixture_cases": 9,
+  "protocol_test_responses": "FIXTURES_NOT_MODEL_INFERENCE",
   "build": "PASS",
   "format": "PASS",
   "clippy_deny_warnings": "PASS",
   "release_build": "PASS",
-  "real_tool_replay": "PASS",
-  "live_model_inference": "NOT_RUN",
-  "gpu": "NOT_REQUIRED_FOR_STANDALONE"
+  "interactive_terminal": {
+    "approved_file_write": "PASS",
+    "tool_receipt_returned": "PASS",
+    "ctrl_c_stream_socket_closed": "PASS",
+    "new_session_after_cancel": "PASS"
+  },
+  "live_model_inference": "BLOCKED_ENGINE_STARTUP_ACCESS_DENIED",
+  "gpu_performance_measurements": "NONE",
+  "previous_alpha1_evidence": [
+    "windows-verification.txt",
+    "windows-demo.txt",
+    "context-boundaries.json"
+  ],
+  "release_executable_http_fixture_cases": 9,
+  "package_verification": "Package.ps1 verifies every bundled file; archive checksums are distributed separately."
 }
