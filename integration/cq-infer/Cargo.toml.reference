@@ -1,0 +1,493 @@
+[package]
+name = "cq-infer"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[features]
+default = []
+dspark-product = [
+    "cq-model-deepseek-v4-flash/dspark-product",
+    "cq-model-deepseek-v4-flash-runtime/dspark-product",
+]
+kv8-dsa-prefix-snapshot = [
+    "single-sequence-fast-kv8-dsa",
+    "cq-model-deepseek-v4-flash-runtime/kv8-dsa-prefix-snapshot",
+]
+single-sequence-fast-q6-plain-fp32 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-q6-plain-fp32",
+]
+single-sequence-fast-q6-dp4a = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-q6-dp4a",
+]
+single-sequence-fast-q6-high2-dp4a = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-q6-high2-dp4a",
+]
+single-sequence-fast-q6-high2-width512-dp4a = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-q6-high2-width512-dp4a",
+]
+single-sequence-fast-q6-high2-register-width512-dp4a = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-q6-high2-register-width512-dp4a",
+]
+single-sequence-fast-shared-q6-fp32 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-shared-q6-fp32",
+]
+single-sequence-fast-shared-fp32-no-cast = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-shared-fp32-no-cast",
+]
+single-sequence-fast-expert-warp-fp32 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-expert-warp-fp32",
+]
+single-sequence-fast-expert-down-novalidate = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-expert-down-novalidate",
+]
+single-sequence-fast-expert-fusion = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-expert-fusion",
+]
+single-sequence-fast-expert-warp-shared = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-expert-warp-shared",
+]
+single-sequence-fast-expert-dp4a = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-expert-dp4a",
+]
+single-sequence-fast-q5-dp4a = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-q5-dp4a",
+]
+ffn-q1-width2048 = [
+    "cq-model-deepseek-v4-flash-runtime/ffn-q1-width2048",
+]
+ffn-q1-width1536 = [
+    "cq-model-deepseek-v4-flash-runtime/ffn-q1-width1536",
+]
+ffn-q1-width1024 = [
+    "cq-model-deepseek-v4-flash-runtime/ffn-q1-width1024",
+]
+ffn-q1-width768 = [
+    "cq-model-deepseek-v4-flash-runtime/ffn-q1-width768",
+]
+ffn-q1-width512 = [
+    "cq-model-deepseek-v4-flash-runtime/ffn-q1-width512",
+]
+fast-expert-word-pack-v1 = [
+    "cq-model-deepseek-v4-flash-runtime/fast-expert-word-pack-v1",
+]
+fast-expert-cta256-candidate = [
+    "toc-sm70-core-v1",
+    "ffn-q1-width2048",
+    "cq-model-deepseek-v4-flash-runtime/fast-expert-cta256-candidate",
+]
+fast-expert-register-staging-candidate = [
+    "toc-sm70-core-v1",
+    "ffn-q1-width2048",
+    "cq-model-deepseek-v4-flash-runtime/fast-expert-register-staging-candidate",
+]
+fast-expert-shared-word-pack-candidate = [
+    "cq-model-deepseek-v4-flash-runtime/fast-expert-shared-word-pack-candidate",
+]
+fast-expert-q5-direct-word-pack-candidate = [
+    "cq-model-deepseek-v4-flash-runtime/fast-expert-q5-direct-word-pack-candidate",
+]
+single-sequence-fast-expert-width1024 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-expert-width1024",
+]
+single-sequence-fast-no-shared-expert = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-no-shared-expert",
+]
+single-sequence-fast-no-shared-full-width = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-no-shared-full-width",
+]
+single-sequence-fast-no-shared-width1536 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-no-shared-width1536",
+]
+single-sequence-fast-kv-window32 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-kv-window32",
+]
+single-sequence-fast-kv-window16 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-kv-window16",
+]
+single-sequence-fast-kv-window8 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-kv-window8",
+]
+single-sequence-fast-kv-window8-all-families = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-kv-window8-all-families",
+]
+single-sequence-fast-v43-width1024-kv-window8 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-v43-width1024-kv-window8",
+]
+single-sequence-fast-v44-width768-kv-window8 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-v44-width768-kv-window8",
+]
+single-sequence-fast-v45-width512-kv-window8 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-v45-width512-kv-window8",
+]
+single-sequence-fast-kv8-dsa = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-kv8-dsa",
+]
+ctx6d-kv8-dsa-width512-candidate = ["single-sequence-fast-kv8-dsa"]
+ctx6d-route-prep-parallel-candidate = [
+    "ctx6d-kv8-dsa-width512-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6d-route-prep-parallel-candidate",
+]
+ctx6d-route-quantize-fused-candidate = [
+    "ctx6d-kv8-dsa-width512-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6d-route-quantize-fused-candidate",
+]
+ctx6d-expert-graph-candidate = [
+    "ctx6d-kv8-dsa-width512-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6d-expert-graph-candidate",
+]
+ctx6r-ratio128-split-candidate = [
+    "single-sequence-fast-kv8-dsa",
+    "cq-model-deepseek-v4-flash-runtime/ctx6r-ratio128-split-candidate",
+]
+ctx6r-ratio128-warp-tile-candidate = [
+    "ctx6r-ratio128-split-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6r-ratio128-warp-tile-candidate",
+]
+ctx12-ratio128-skip-row-validation-candidate = [
+    "ctx10-q6-register-ctx9-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx12-ratio128-skip-row-validation-candidate",
+]
+ctx7-kv8-dsa-prevalidated-submit-candidate = [
+    "ctx6r-composed-product-v1",
+    "cq-model-deepseek-v4-flash-runtime/ctx7-kv8-dsa-prevalidated-submit-candidate",
+]
+ctx8-kv8-dsa-prevalidated-selector-candidate = [
+    "ctx6r-ratio4-two-level-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx8-kv8-dsa-prevalidated-selector-candidate",
+]
+ctx9-kv8-dsa-family-warp2-candidate = [
+    "toc-sm70-base-v1",
+    "cq-model-deepseek-v4-flash-runtime/ctx9-kv8-dsa-family-warp2-candidate",
+]
+ctx15-ratio4-skip-row-validation-candidate = [
+    "ctx12-ratio128-skip-row-validation-candidate",
+    "ctx9-kv8-dsa-family-warp2-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx15-ratio4-skip-row-validation-candidate",
+]
+ctx17-ratio4-warp-topk-candidate = [
+    "toc-sm70-v1",
+    "cq-model-deepseek-v4-flash-runtime/ctx17-ratio4-warp-topk-candidate",
+]
+ctx18-ratio4-distributed-topk-candidate = [
+    "toc-sm70-v1",
+    "cq-model-deepseek-v4-flash-runtime/ctx18-ratio4-distributed-topk-candidate",
+]
+ctx18-ratio4-distributed-topk-v1 = [
+    "toc-sm70-v1-kv8",
+    "ctx18-ratio4-distributed-topk-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx18-ratio4-distributed-topk-v1",
+]
+ctx6-dp4a-selector-candidate = [
+    "cq-model-deepseek-v4-flash-runtime/ctx6-dp4a-selector-candidate",
+]
+ctx6r-ratio4-two-level-candidate = [
+    "ctx6-dp4a-selector-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6r-ratio4-two-level-candidate",
+]
+ctx6r-no-shared-event-elision-candidate = [
+    "ctx6r-ratio128-warp-tile-candidate",
+    "ctx6-dp4a-selector-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6r-no-shared-event-elision-candidate",
+]
+ctx6r-composed-product-v1 = [
+    "ctx6r-no-shared-event-elision-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6r-composed-product-v1",
+]
+toc-sm70-base-v1 = [
+    "ctx6r-composed-product-v1",
+    "ctx6r-ratio4-two-level-candidate",
+    "ctx6r-token-paced-capability-receipt",
+]
+# Public product closure owns the qualified CTX12 attention path. The full
+# routed FFN width and route-fused topology are selected by toc-sm70-v1 below.
+toc-sm70-core-v1 = [
+    "ctx12-ratio128-skip-row-validation-candidate",
+    "kv8-dsa-prefix-snapshot",
+]
+fast-route-quantize-fused-v1-candidate = [
+    "fast-expert-word-pack-v1",
+    "cq-model-deepseek-v4-flash-runtime/fast-route-quantize-fused-v1-candidate",
+]
+fast-route-quantize-fused-v1 = [
+    "fast-route-quantize-fused-v1-candidate",
+    "cq-model-deepseek-v4-flash-runtime/fast-route-quantize-fused-v1",
+]
+fast-cv-host-profile = [
+    "fast-route-quantize-fused-v1-candidate",
+    "cq-model-deepseek-v4-flash-runtime/fast-cv-host-profile",
+]
+fast-cv-schedule-spin-candidate = [
+    "fast-route-quantize-fused-v1-candidate",
+    "cq-model-deepseek-v4-flash-runtime/fast-cuda-schedule-spin-candidate",
+]
+fast-cv-ratio4-pacing-candidate = [
+    "fast-route-quantize-fused-v1-candidate",
+    "cq-model-deepseek-v4-flash-runtime/fast-cv-ratio4-pacing-candidate",
+]
+fast-cv-midpoint-pacing-candidate = [
+    "fast-route-quantize-fused-v1-candidate",
+    "cq-model-deepseek-v4-flash-runtime/fast-cv-midpoint-pacing-candidate",
+]
+toc-sm70-v1 = [
+    "toc-sm70-core-v1",
+    "ffn-q1-width2048",
+    "fast-route-quantize-fused-v1",
+]
+# Explicit opt-in product build for retained SM70 decode, qualified V34
+# prefill, the 262K owner, and persisted KV8/DSA prefix reuse. The ordinary
+# toc-sm70-v1 profile keeps these cache/prefill features disabled; CLI cache
+# behavior remains off unless the user selects this alias and a cache mode.
+toc-sm70-v1-kv8 = [
+    "toc-sm70-v1",
+    "cache4-v34-agent-prefix-b16-v3",
+    "kv8-dsa-prefix-snapshot",
+    "request-mla-long-context-262144",
+]
+toc-sm70-high2-v1 = [
+    "toc-sm70-base-v1",
+    "single-sequence-fast-q6-high2-width512-dp4a",
+]
+toc-sm70-high2-register-v1 = [
+    "toc-sm70-high2-v1",
+    "single-sequence-fast-q6-high2-register-width512-dp4a",
+]
+ctx10-q6-register-ctx9-candidate = [
+    "ctx9-kv8-dsa-family-warp2-candidate",
+    "toc-sm70-high2-register-v1",
+]
+ctx6r-paced-capability-receipt-stride2 = [
+    "ctx6r-composed-product-v1",
+    "ctx6r-ratio4-two-level-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6r-paced-capability-receipt-stride2",
+]
+ctx6r-paced-capability-receipt-stride4 = [
+    "ctx6r-composed-product-v1",
+    "ctx6r-ratio4-two-level-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6r-paced-capability-receipt-stride4",
+]
+ctx6r-paced-capability-receipt-stride8 = [
+    "ctx6r-composed-product-v1",
+    "ctx6r-ratio4-two-level-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6r-paced-capability-receipt-stride8",
+]
+ctx6r-token-paced-capability-receipt = [
+    "ctx6r-composed-product-v1",
+    "ctx6r-ratio4-two-level-candidate",
+    "cq-model-deepseek-v4-flash-runtime/ctx6r-token-paced-capability-receipt",
+]
+single-sequence-fast-shared-tail16 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-shared-tail16",
+]
+single-sequence-fast-shared-tail24 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-shared-tail24",
+]
+single-sequence-fast-shared-even22 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-shared-even22",
+]
+single-sequence-fast-shared-two-of-three28 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-shared-two-of-three28",
+]
+single-sequence-fast-ratio4-fused = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-ratio4-fused",
+]
+single-sequence-fast-hc-pre-fused = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-hc-pre-fused",
+]
+single-sequence-fast-cast-rms-fused = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-cast-rms-fused",
+]
+single-sequence-fast-q5-warp-fp32 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-q5-warp-fp32",
+]
+single-sequence-fast-fp8-warp-fp32 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-fp8-warp-fp32",
+]
+single-sequence-fast-prefill-group4 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-group4",
+]
+single-sequence-fast-prefill-attention-finish-group4 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-attention-finish-group4",
+]
+single-sequence-fast-prefill-attention-prelude-finish-m128 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-attention-prelude-finish-m128",
+]
+single-sequence-fast-prefill-attention-finish-wob-m128 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-attention-finish-wob-m128",
+]
+single-sequence-fast-prefill-wqb-group4 = [
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-wqb-group4",
+]
+single-sequence-fast-prefill-wqb-group4-1k = [
+    "single-sequence-fast-prefill-wqb-group4",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-wqb-group4-1k",
+]
+request-mla-long-context-262144 = [
+    "single-sequence-fast-prefill-wqb-group4-1k",
+    "cq-model-deepseek-v4-flash-runtime/request-mla-long-context-262144",
+]
+single-sequence-fast-prefill-wqb-wmma-m128 = [
+    "single-sequence-fast-prefill-wqb-group4",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-wqb-wmma-m128",
+]
+single-sequence-fast-prefill-wqb-wmma-m128-1k = [
+    "single-sequence-fast-prefill-wqb-wmma-m128",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-wqb-wmma-m128-1k",
+]
+single-sequence-fast-prefill-attention-projection-wmma-m128 = [
+    "single-sequence-fast-prefill-wqb-wmma-m128",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-attention-projection-wmma-m128",
+]
+single-sequence-fast-prefill-attention-projection-wmma-m128-1k = [
+    "single-sequence-fast-prefill-attention-projection-wmma-m128",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-attention-projection-wmma-m128-1k",
+]
+single-sequence-fast-prefill-causal-mla-composed-m128-1k = [
+    "single-sequence-fast-prefill-attention-projection-wmma-m128-1k",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-causal-mla-composed-m128-1k",
+]
+single-sequence-fast-prefill-causal-mla-composed-m128-1k-v12 = [
+    "single-sequence-fast-prefill-causal-mla-composed-m128-1k",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-causal-mla-composed-m128-1k-v12",
+]
+single-sequence-fast-prefill-causal-mla-composed-m128-1k-v13-direct-into = [
+    "single-sequence-fast-prefill-causal-mla-composed-m128-1k-v12",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-causal-mla-composed-m128-1k-v13-direct-into",
+]
+single-sequence-fast-prefill-causal-mla-composed-m128-1k-v14-row8-route = [
+    "single-sequence-fast-prefill-causal-mla-composed-m128-1k-v12",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-causal-mla-composed-m128-1k-v14-row8-route",
+]
+single-sequence-fast-prefill-attention-prelude-m128 = [
+    "single-sequence-fast-prefill-causal-mla-composed-m128-1k-v14-row8-route",
+    "cq-model-deepseek-v4-flash-runtime/single-sequence-fast-prefill-attention-prelude-m128",
+]
+p0-prefill-v12-full-stage-ledger = [
+    "single-sequence-fast-prefill-causal-mla-composed-m128-1k-v12",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v12-full-stage-ledger",
+]
+p0-prefill-v14-full-stage-reledger = [
+    "single-sequence-fast-prefill-causal-mla-composed-m128-1k-v14-row8-route",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v14-full-stage-reledger",
+]
+p0-prefill-v19-projection-subphase-ledger = [
+    "single-sequence-fast-prefill-attention-finish-wob-m128",
+    "p0-prefill-v14-full-stage-reledger",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v19-projection-subphase-ledger",
+]
+p0-prefill-v20-projection-batched-ratio4 = [
+    "p0-prefill-v19-projection-subphase-ledger",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v20-projection-batched-ratio4",
+]
+p0-prefill-v21-ratio4-fast-exact-qdq = [
+    "p0-prefill-v20-projection-batched-ratio4",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v21-ratio4-fast-exact-qdq",
+]
+p0-prefill-v22-projection-resume-batch-exact = [
+    "p0-prefill-v20-projection-batched-ratio4",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v22-projection-resume-batch-exact",
+]
+p0-prefill-v23-projection-post-batch-exact = [
+    "p0-prefill-v22-projection-resume-batch-exact",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v23-projection-post-batch-exact",
+]
+p0-prefill-v24-resident-woa-m128 = [
+    "p0-prefill-v23-projection-post-batch-exact",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v24-resident-woa-m128",
+]
+p0-prefill-v25-whole-ffn-substage-ledger = [
+    "p0-prefill-v24-resident-woa-m128",
+    "p0-prefill-v14-full-stage-reledger",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v25-whole-ffn-substage-ledger",
+]
+p0-prefill-v26-layer-expert-f16-cache = [
+    "p0-prefill-v24-resident-woa-m128",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v26-layer-expert-f16-cache",
+]
+p0-prefill-v27-q5-row128-reuse = [
+    "p0-prefill-v24-resident-woa-m128",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v27-q5-row128-reuse",
+]
+p0-prefill-v28-raw-ratio128-projection-post-batch-exact = [
+    "p0-prefill-v27-q5-row128-reuse",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v28-raw-ratio128-projection-post-batch-exact",
+]
+p0-prefill-v29-q5-block-staging = [
+    "p0-prefill-v28-raw-ratio128-projection-post-batch-exact",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v29-q5-block-staging",
+]
+p0-prefill-v30-q5-input-broadcast = [
+    "p0-prefill-v29-q5-block-staging",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v30-q5-input-broadcast",
+]
+p0-prefill-v31-cta-occupancy-fill = [
+    "p0-prefill-v30-q5-input-broadcast",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v31-cta-occupancy-fill",
+]
+p0-prefill-v32-q5-cta8 = [
+    "p0-prefill-v31-cta-occupancy-fill",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v32-q5-cta8",
+]
+p0-prefill-v33-q5-cta8-grid192 = [
+    "p0-prefill-v32-q5-cta8",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v33-q5-cta8-grid192",
+]
+p0-prefill-v34-q8-quantize-shard4 = [
+    "p0-prefill-v32-q5-cta8",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v34-q8-quantize-shard4",
+]
+p0-prefill-v36-m1024-layer-union-whole-ffn = [
+    "p0-prefill-v34-q8-quantize-shard4",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v36-m1024-layer-union-whole-ffn",
+]
+p0-prefill-v37-m1024-q8-fast-union = [
+    "p0-prefill-v36-m1024-layer-union-whole-ffn",
+    "cq-model-deepseek-v4-flash-runtime/p0-prefill-v37-m1024-q8-fast-union",
+]
+cache4-v34-packed-prefix = [
+    "p0-prefill-v34-q8-quantize-shard4",
+    "cq-model-deepseek-v4-flash-runtime/cache4-v34-packed-prefix",
+]
+cache4-v34-packed-prefix-v2 = [
+    "cache4-v34-packed-prefix",
+    "cq-model-deepseek-v4-flash-runtime/cache4-v34-packed-prefix-v2",
+]
+cache4-v34-agent-prefix-b16-v3 = [
+    "cache4-v34-packed-prefix-v2",
+    "cq-model-deepseek-v4-flash-runtime/cache4-v34-agent-prefix-b16-v3",
+]
+dspark-target-verify-device-profile = [
+    "dspark-product",
+    "cq-model-deepseek-v4-flash-runtime/dspark-target-verify-device-profile",
+]
+
+[dependencies]
+cq-backend = { path = "../cq-backend", features = ["cuda"] }
+cq-generation = { path = "../cq-generation" }
+cq-model-deepseek-v4-flash = { path = "../cq-model-deepseek-v4-flash" }
+cq-model-deepseek-v4-flash-runtime = { path = "../cq-model-deepseek-v4-flash-runtime", features = [
+    "single-sequence-fast",
+] }
+cq-runtime = { path = "../cq-runtime" }
+crossterm = "0.28.1"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+sha2 = "0.10.9"
+signal-hook = "0.3.18"
+unicode-width = "0.2.2"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_JobObjects",
+    "Win32_System_Threading",
+] }
+
+[[bin]]
+name = "cq-infer"
+path = "src/main.rs"

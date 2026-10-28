@@ -1,0 +1,212 @@
+[
+  {
+    "input_tokens": 258047,
+    "output_tokens": 4096,
+    "capacity": 262144,
+    "exit_code": 0,
+    "receipt": {
+      "mode": "CPU_CONTEXT_CHECK",
+      "model_inference": false,
+      "token_count_source": "caller",
+      "admitted": true,
+      "owner_positions": 262144,
+      "input_tokens": 258047,
+      "requested_output_tokens": 4096,
+      "reserved_output_tokens": 4096,
+      "usable_input_limit": 258048,
+      "handoff_at": 245145,
+      "pressure": "Handoff",
+      "rejection": null
+    }
+  },
+  {
+    "input_tokens": 258048,
+    "output_tokens": 4096,
+    "capacity": 262144,
+    "exit_code": 0,
+    "receipt": {
+      "mode": "CPU_CONTEXT_CHECK",
+      "model_inference": false,
+      "token_count_source": "caller",
+      "admitted": true,
+      "owner_positions": 262144,
+      "input_tokens": 258048,
+      "requested_output_tokens": 4096,
+      "reserved_output_tokens": 4096,
+      "usable_input_limit": 258048,
+      "handoff_at": 245145,
+      "pressure": "HardLimit",
+      "rejection": null
+    }
+  },
+  {
+    "input_tokens": 258049,
+    "output_tokens": 4096,
+    "capacity": 262144,
+    "exit_code": 1,
+    "receipt": {
+      "mode": "CPU_CONTEXT_CHECK",
+      "model_inference": false,
+      "token_count_source": "caller",
+      "admitted": false,
+      "owner_positions": 262144,
+      "input_tokens": 258049,
+      "requested_output_tokens": 4096,
+      "reserved_output_tokens": 4096,
+      "usable_input_limit": 258048,
+      "handoff_at": 245145,
+      "pressure": "HardLimit",
+      "rejection": {
+        "schema": "crystal-quant.product.context-capacity-rejection.v1",
+        "kind": "usable-input-limit",
+        "required_positions": 262145,
+        "overflow_positions": 1
+      }
+    }
+  },
+  {
+    "input_tokens": 262144,
+    "output_tokens": 4096,
+    "capacity": 262144,
+    "exit_code": 1,
+    "receipt": {
+      "mode": "CPU_CONTEXT_CHECK",
+      "model_inference": false,
+      "token_count_source": "caller",
+      "admitted": false,
+      "owner_positions": 262144,
+      "input_tokens": 262144,
+      "requested_output_tokens": 4096,
+      "reserved_output_tokens": 4096,
+      "usable_input_limit": 258048,
+      "handoff_at": 245145,
+      "pressure": "HardLimit",
+      "rejection": {
+        "schema": "crystal-quant.product.context-capacity-rejection.v1",
+        "kind": "usable-input-limit",
+        "required_positions": 266240,
+        "overflow_positions": 4096
+      }
+    }
+  },
+  {
+    "input_tokens": 262145,
+    "output_tokens": 4096,
+    "capacity": 262144,
+    "exit_code": 1,
+    "receipt": {
+      "mode": "CPU_CONTEXT_CHECK",
+      "model_inference": false,
+      "token_count_source": "caller",
+      "admitted": false,
+      "owner_positions": 262144,
+      "input_tokens": 262145,
+      "requested_output_tokens": 4096,
+      "reserved_output_tokens": 4096,
+      "usable_input_limit": 258048,
+      "handoff_at": 245145,
+      "pressure": "HardLimit",
+      "rejection": {
+        "schema": "crystal-quant.product.context-capacity-rejection.v1",
+        "kind": "physical-owner-capacity",
+        "required_positions": 266241,
+        "overflow_positions": 4097
+      }
+    }
+  },
+  {
+    "input_tokens": 253952,
+    "output_tokens": 8192,
+    "capacity": 262144,
+    "exit_code": 0,
+    "receipt": {
+      "mode": "CPU_CONTEXT_CHECK",
+      "model_inference": false,
+      "token_count_source": "caller",
+      "admitted": true,
+      "owner_positions": 262144,
+      "input_tokens": 253952,
+      "requested_output_tokens": 8192,
+      "reserved_output_tokens": 8192,
+      "usable_input_limit": 253952,
+      "handoff_at": 241254,
+      "pressure": "HardLimit",
+      "rejection": null
+    }
+  },
+  {
+    "input_tokens": 253953,
+    "output_tokens": 8192,
+    "capacity": 262144,
+    "exit_code": 1,
+    "receipt": {
+      "mode": "CPU_CONTEXT_CHECK",
+      "model_inference": false,
+      "token_count_source": "caller",
+      "admitted": false,
+      "owner_positions": 262144,
+      "input_tokens": 253953,
+      "requested_output_tokens": 8192,
+      "reserved_output_tokens": 8192,
+      "usable_input_limit": 253952,
+      "handoff_at": 241254,
+      "pressure": "HardLimit",
+      "rejection": {
+        "schema": "crystal-quant.product.context-capacity-rejection.v1",
+        "kind": "usable-input-limit",
+        "required_positions": 262145,
+        "overflow_positions": 1
+      }
+    }
+  },
+  {
+    "input_tokens": 1,
+    "output_tokens": 1024,
+    "capacity": 1024,
+    "exit_code": 1,
+    "receipt": {
+      "mode": "CPU_CONTEXT_CHECK",
+      "model_inference": false,
+      "token_count_source": "caller",
+      "admitted": false,
+      "owner_positions": 1024,
+      "input_tokens": 1,
+      "requested_output_tokens": 1024,
+      "reserved_output_tokens": 1024,
+      "usable_input_limit": 0,
+      "handoff_at": 0,
+      "pressure": "HardLimit",
+      "rejection": {
+        "schema": "crystal-quant.product.context-capacity-rejection.v1",
+        "kind": "output-reserve-exhausted",
+        "required_positions": 1025,
+        "overflow_positions": 1
+      }
+    }
+  },
+  {
+    "input_tokens": 0,
+    "output_tokens": 4096,
+    "capacity": 262144,
+    "exit_code": 1,
+    "receipt": {
+      "mode": "CPU_CONTEXT_CHECK",
+      "model_inference": false,
+      "token_count_source": "caller",
+      "admitted": false,
+      "owner_positions": 262144,
+      "input_tokens": 0,
+      "requested_output_tokens": 4096,
+      "reserved_output_tokens": 4096,
+      "usable_input_limit": 258048,
+      "handoff_at": 245145,
+      "pressure": "Normal",
+      "rejection": {
+        "schema": "crystal-quant.product.context-capacity-rejection.v1",
+        "kind": "empty-input",
+        "required_positions": 4096,
+        "overflow_positions": 0
+      }
+    }
+  }
+]

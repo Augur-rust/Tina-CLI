@@ -1,0 +1,15 @@
+{
+  "version": "0.1.0-alpha.1",
+  "date": "2026-10-28",
+  "platform": "x86_64-pc-windows-msvc",
+  "rust": "1.96.0",
+  "unit_and_process_tests": 174,
+  "context_check_release_cases": 9,
+  "build": "PASS",
+  "format": "PASS",
+  "clippy_deny_warnings": "PASS",
+  "release_build": "PASS",
+  "real_tool_replay": "PASS",
+  "live_model_inference": "NOT_RUN",
+  "gpu": "NOT_REQUIRED_FOR_STANDALONE"
+}

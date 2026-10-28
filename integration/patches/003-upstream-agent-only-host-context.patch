@@ -1,0 +1,305 @@
+commit 3a218bdd21cf47bf25a9569c792085c9928e30d4
+Author:     M24 Benchmark <m24@crystal-quant.local>
+AuthorDate: Thu Aug 13 08:41:21 2026 +0800
+Commit:     M24 Benchmark <m24@crystal-quant.local>
+CommitDate: Thu Aug 13 08:41:21 2026 +0800
+
+    fix(chat): keep host execution context agent-only
+
+diff --git a/crates/cq-infer/src/conversation_memory.rs b/crates/cq-infer/src/conversation_memory.rs
+index 1a6abbf4..d802abff 100644
+--- a/crates/cq-infer/src/conversation_memory.rs
++++ b/crates/cq-infer/src/conversation_memory.rs
+@@ -1879,41 +1879,16 @@ impl ActiveConversationMemory {
+         prefix: &str,
+         tools: Vec<Value>,
+         host_environment: &str,
+-    ) -> Result<Vec<Value>, MemoryError> {
+-        self.active_values_with_host_environment(
+-            prefix,
+-            host_environment,
+-            Some((
+-                "You are Tina, a local coding Agent. Use tools only when needed, respect the workspace boundary, and base conclusions on tool results.",
+-                tools,
+-            )),
+-        )
+-    }
+-
+-    /// Add the detected host context to ordinary chat as well as Agent chat.
+-    /// This is presentation-neutral metadata: it is not persisted as a user
+-    /// turn and does not change the canonical role names in the archive.
+-    pub(crate) fn active_values_with_host_environment(
+-        &self,
+-        prefix: &str,
+-        host_environment: &str,
+-        agent: Option<(&str, Vec<Value>)>,
+     ) -> Result<Vec<Value>, MemoryError> {
+         let mut messages = self.active_values(prefix)?;
+-        let content = if let Some((role_description, _)) = agent.as_ref() {
+-            format!("{role_description} {host_environment}")
+-        } else {
+-            format!(
+-                "You are Tina, a local assistant running inside Tina Engine. {host_environment}"
+-            )
+-        };
+-        let mut system = serde_json::json!({
++        let system = serde_json::json!({
+             "role": "system",
+-            "content": content,
++            "content": format!(
++                "You are Tina, a local coding Agent. Use tools only when needed, respect the workspace boundary, and base conclusions on tool results. {host_environment}"
++            ),
++            "tools": tools,
+         });
+-        if let Some((_, tools)) = agent {
+-            system["tools"] = Value::Array(tools);
+-        }
++        debug_assert!(system["tools"].is_array());
+         messages.insert(0, system);
+         Ok(messages)
+     }
+@@ -4106,7 +4081,7 @@ mod tests {
+     }
+ 
+     #[test]
+-    fn detected_host_environment_is_a_system_message_not_an_archived_turn() {
++    fn detected_host_environment_is_agent_only_and_not_an_archived_turn() {
+         let root = TestDir::new("host-environment");
+         let (mut memory, _) =
+             ActiveConversationMemory::open(&root.0, ResumeSelection::New, MemoryConfig::default())
+@@ -4115,20 +4090,16 @@ mod tests {
+             .append_user("show the build command".to_string())
+             .unwrap();
+ 
+-        let values = memory
+-            .active_values_with_host_environment(
+-                "",
+-                "OS=windows; shell=powershell; cwd=C:\\repo",
+-                None,
+-            )
+-            .unwrap();
+-        assert_eq!(values[0]["role"], "system");
+-        assert!(values[0]["content"]
+-            .as_str()
+-            .unwrap()
+-            .contains("shell=powershell"));
+-        assert!(values[0].get("tools").is_none());
+-        assert_eq!(values[1]["role"], "user");
++        let chat = memory.active_values("").unwrap();
++        assert_eq!(chat.len(), 1);
++        assert_eq!(chat[0]["role"], "user");
++        assert_eq!(chat[0]["content"], "show the build command");
++        assert!(chat.iter().all(|value| value["role"] != "system"));
++        assert!(chat.iter().all(|value| {
++            !value["content"]
++                .as_str()
++                .is_some_and(|content| content.contains("shell=powershell"))
++        }));
+         assert_eq!(memory.turn_count(), 1);
+ 
+         let agent = memory
+@@ -4190,20 +4161,13 @@ mod tests {
+ 
+             assert_eq!(memory.retry_last_user_turn().unwrap(), "second");
+             memory.append_user("second".to_string()).unwrap();
+-            let values = memory
+-                .active_values_with_host_environment("", "OS=windows; shell=powershell", None)
+-                .unwrap();
++            let values = memory.active_values("").unwrap();
+             assert_eq!(
+                 values
+                     .iter()
+                     .filter_map(|value| value["content"].as_str())
+                     .collect::<Vec<_>>(),
+-                vec![
+-                    "You are Tina, a local assistant running inside Tina Engine. OS=windows; shell=powershell",
+-                    "first",
+-                    "first answer",
+-                    "second",
+-                ]
++                vec!["first", "first answer", "second"]
+             );
+             assert!(values.iter().all(|value| value.get("tool_calls").is_none()));
+             assert_eq!(memory.archive.supersessions().len(), 1);
+@@ -4216,9 +4180,7 @@ mod tests {
+         )
+         .unwrap();
+         assert!(resumed);
+-        let values = memory
+-            .active_values_with_host_environment("", "OS=windows; shell=powershell", None)
+-            .unwrap();
++        let values = memory.active_values("").unwrap();
+         assert!(values.iter().all(|value| value.get("tool_calls").is_none()));
+         assert!(values.iter().all(|value| {
+             value["content"].as_str() != Some("superseded answer")
+diff --git a/crates/cq-infer/src/host_environment.rs b/crates/cq-infer/src/host_environment.rs
+index e1d92485..e6426b9f 100644
+--- a/crates/cq-infer/src/host_environment.rs
++++ b/crates/cq-infer/src/host_environment.rs
+@@ -45,11 +45,9 @@ impl HostEnvironment {
+         )
+     }
+ 
+-    /// Build the authoritative environment block that is placed in the model
+-    /// system message. `workspace` is the Agent sandbox when one is enabled;
+-    /// ordinary chat uses the process cwd as its command context.
+-    pub(crate) fn model_prompt(&self, workspace: Option<&Path>) -> String {
+-        let workspace = workspace.unwrap_or(&self.cwd);
++    /// Build the authoritative environment block placed in the explicit Agent
++    /// system message. Ordinary chat never receives host execution metadata.
++    pub(crate) fn agent_prompt(&self, workspace: &Path) -> String {
+         let syntax = match self.shell.as_str() {
+             "powershell" => {
+                 "Use PowerShell syntax: $env:NAME for environment variables, backslash paths when native Windows paths are needed, and PowerShell cmdlets. Do not emit Bash-only syntax such as export, source, ./script.sh, or $(...)."
+@@ -76,10 +74,6 @@ impl HostEnvironment {
+         )
+     }
+ 
+-    pub(crate) fn agent_prompt(&self, workspace: &Path) -> String {
+-        self.model_prompt(Some(workspace))
+-    }
+-
+     pub(crate) fn shell(&self) -> &str {
+         &self.shell
+     }
+@@ -192,17 +186,18 @@ mod tests {
+     }
+ 
+     #[test]
+-    fn ordinary_chat_prompt_uses_process_cwd_as_workspace() {
++    fn agent_prompt_uses_the_explicit_workspace() {
+         let environment = HostEnvironment {
+             os: "linux",
+             shell: "bash".to_string(),
+             terminal: "xterm".to_string(),
+             cwd: PathBuf::from("/workspace/project"),
+         };
+-        let prompt = environment.model_prompt(None);
++        let prompt = environment.agent_prompt(Path::new("/workspace/agent"));
+         assert!(prompt.contains("OS=linux"));
+         assert!(prompt.contains("shell=bash"));
+-        assert!(prompt.contains("workspace=\"/workspace/project\""));
++        assert!(prompt.contains("process_cwd=\"/workspace/project\""));
++        assert!(prompt.contains("workspace=\"/workspace/agent\""));
+         assert!(prompt.contains("export NAME=value"));
+     }
+ 
+diff --git a/crates/cq-infer/src/main.rs b/crates/cq-infer/src/main.rs
+index 9712dcdf..4859361b 100644
+--- a/crates/cq-infer/src/main.rs
++++ b/crates/cq-infer/src/main.rs
+@@ -5828,9 +5828,7 @@ fn encode_active_memory_document(
+         Some(tools) => memory
+             .active_agent_values(prefix, tools.to_vec(), host_environment)
+             .map_err(boxed)?,
+-        None => memory
+-            .active_values_with_host_environment(prefix, host_environment, None)
+-            .map_err(boxed)?,
++        None => memory.active_values(prefix).map_err(boxed)?,
+     };
+     let document = serde_json::to_vec(&messages)?;
+     if document.len() as u64 > context_budget::MAX_CONVERSATION_DOCUMENT_BYTES {
+@@ -6746,16 +6744,13 @@ fn run_fast_interactive_conversation(
+         .as_ref()
+         .map(|config| &config.host_environment)
+         .unwrap_or(&detected_host_environment);
+-    let host_context = agent.as_ref().map_or_else(
+-        || effective_host_environment.model_prompt(None),
+-        |config| {
++    let agent_host_context = agent.as_ref().map(|config| {
+             let mut prompt = effective_host_environment.agent_prompt(&config.workspace);
+             if config.full_access {
+                 prompt.push_str(" This Agent has explicit FULL_ACCESS authorization: regular files, shell commands, and network access are available across the machine. Use the authoritative shell dialect and absolute paths when needed. MCP is unavailable. Do not ask for a second confirmation after startup authorization.");
+             }
+             prompt
+-        },
+-    );
++        });
+     let host_status = effective_host_environment
+         .status_text(agent.as_ref().map(|config| config.workspace.as_path()));
+     eprintln!("TINA_HOST_ENVIRONMENT {host_status}");
+@@ -7469,7 +7464,9 @@ fn run_fast_interactive_conversation(
+                 &project_memory,
+                 host,
+                 schemas,
+-                &host_context,
++                agent_host_context
++                    .as_deref()
++                    .expect("Agent host has an authoritative environment prompt"),
+                 runtime,
+                 stream,
+                 artifact,
+@@ -7516,7 +7513,7 @@ fn run_fast_interactive_conversation(
+             &project_memory,
+             tokenizer,
+             options,
+-            &host_context,
++            "",
+             None,
+         )
+         .map_err(ConversationLoopFailure::Cancel)?;
+@@ -10373,6 +10370,64 @@ mod tests {
+         fs::remove_dir_all(root).unwrap();
+     }
+ 
++    #[test]
++    fn ordinary_chat_archive_reencode_preserves_two_turn_byte_prefix() {
++        let root = std::env::temp_dir().join(format!(
++            "cq-infer-chat-prefix-{}-{}",
++            std::process::id(),
++            SystemTime::now()
++                .duration_since(UNIX_EPOCH)
++                .unwrap()
++                .as_nanos()
++        ));
++        fs::create_dir(&root).unwrap();
++        let (mut memory, resumed) = conversation_memory::ActiveConversationMemory::open(
++            &root,
++            conversation_memory::ResumeSelection::New,
++            conversation_memory::MemoryConfig::default(),
++        )
++        .unwrap();
++        assert!(!resumed);
++
++        memory
++            .append_user("Reply with the single word OK.".to_string())
++            .unwrap();
++        let first_document = serde_json::to_vec(&memory.active_values("").unwrap()).unwrap();
++        let first_prompt =
++            encode_dsv4_messages_v2(&first_document, Dsv4EncodingOptionsV2::chat()).unwrap();
++        assert!(!first_prompt.contains("Host execution environment"));
++        assert!(!first_prompt.contains("shell=powershell"));
++
++        memory.append_assistant("OK.".to_string()).unwrap();
++        let committed_document = serde_json::to_vec(&memory.active_values("").unwrap()).unwrap();
++        let committed_prompt =
++            encode_dsv4_messages_v2(&committed_document, Dsv4EncodingOptionsV2::chat()).unwrap();
++        let committed_suffix = format!("OK.{M114_EOS}");
++        assert_eq!(
++            committed_prompt.strip_prefix(&first_prompt),
++            Some(committed_suffix.as_str())
++        );
++
++        memory
++            .append_user("Reply with the single word YES.".to_string())
++            .unwrap();
++        let second_document = serde_json::to_vec(&memory.active_values("").unwrap()).unwrap();
++        let second_prompt =
++            encode_dsv4_messages_v2(&second_document, Dsv4EncodingOptionsV2::chat()).unwrap();
++        assert_eq!(
++            &second_prompt.as_bytes()[..committed_prompt.len()],
++            committed_prompt.as_bytes()
++        );
++        assert_eq!(
++            second_prompt.strip_prefix(&committed_prompt),
++            Some("<｜User｜>Reply with the single word YES.<｜Assistant｜></think>")
++        );
++
++        drop(memory);
++        assert!(root.starts_with(std::env::temp_dir()));
++        fs::remove_dir_all(root).unwrap();
++    }
++
+     #[test]
+     fn raw_and_structured_prompt_modes_are_fail_closed() {
+         let raw = build_cli_prompt(Some("hello".into()), None, None, None).unwrap();

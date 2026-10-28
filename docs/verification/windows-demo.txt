@@ -1,0 +1,91 @@
+CPU scripted replay: no model inference. Tool calls and archives are real.
+{
+  "mode": "CPU_VERIFICATION",
+  "model_inference": false,
+  "tool_host_handshake": "PASS",
+  "workspace": "\\\\?\\WORKSPACE\\.validation\\demo\\workspace",
+  "environment": "OS=windows | shell=powershell | terminal=dumb | cwd=\"WORKSPACE\" | workspace=\"\\\\\\\\?\\\\WORKSPACE\\\\.validation\\\\demo\\\\workspace\"",
+  "tool_schema_count": 11,
+  "context_contract": {
+    "product_target_positions": 262144,
+    "output_reserve": 4096,
+    "prepare": 206438,
+    "freeze": 232243,
+    "handoff": 245145,
+    "hard_limit": 258048,
+    "gpu_qualification": "NOT_RUN",
+    "offline_replay_uses_model_tokenizer": false
+  },
+  "mcp": false,
+  "subagents": false,
+  "semantic_provider": "NOT_CONFIGURED",
+  "archive_and_tool_regressions": "run scripts/Verify.ps1"
+}
+{
+  "mode": "CPU_SCRIPTED_REPLAY",
+  "model_inference": false,
+  "conversation_id": "07053fd433f007581847cbbad4e9ab7a302fa8b2aee994841373046d7a3202a2",
+  "epoch": 1,
+  "resumed": false,
+  "steps": 3,
+  "tools_succeeded": 2,
+  "tools_failed": 0,
+  "tools_denied": 0,
+  "final_text": "Scripted final response: both real tool receipts were returned. This replay does not measure model intelligence.",
+  "trace": [
+    {
+      "step": 1,
+      "event": "prompt",
+      "bytes": 8492,
+      "sha256": "ae1cb67cfe216cef564391a68e856338fbefdc8809f5c6ca1c3a8e8777de85f3",
+      "model_tokens": "NOT_MEASURED",
+      "message_count": 2
+    },
+    {
+      "call_id": "tool-c6503c2e3f0f03d965ec6fd79b6a2a040e98a719ea054ffb5bc7e30ef2eabc06",
+      "tool": "read",
+      "status": "succeeded",
+      "exit_code": 0,
+      "stdout": "alpha\nreceipt-first harness\n",
+      "stderr": "",
+      "sha256": "f4dd20463bd2e399fa7382aceb6982d8a7b0201cdb08d3d8a2ac13c9f4a40cbc",
+      "truncated": false,
+      "wall_ms": 0,
+      "result_budget_exhausted": false
+    },
+    {
+      "step": 2,
+      "event": "prompt",
+      "bytes": 9080,
+      "sha256": "ad7de8516fb89a6e9cc2c88703e99c520009034c8395e822bd6948d093514cdc",
+      "model_tokens": "NOT_MEASURED",
+      "message_count": 4
+    },
+    {
+      "call_id": "tool-46cea5b9c95f37e20efa4ede5c917e03c2ae5e7bfbc5d402e78d7d1c1b69f1cd",
+      "tool": "git_status",
+      "status": "succeeded",
+      "exit_code": 0,
+      "stdout": "## No commits yet on master\n?? sample.txt\n",
+      "stderr": "",
+      "sha256": "14d7e8cbd6cfc9bcc27645bc7389f488504aa508b1b3ea783bec005f0b5f4b01",
+      "truncated": false,
+      "wall_ms": 24,
+      "result_budget_exhausted": false
+    },
+    {
+      "step": 3,
+      "event": "prompt",
+      "bytes": 9679,
+      "sha256": "85796090fce4bb018be2f18398b58e6deb3179e27978388be890e95ebdcf4fe3",
+      "model_tokens": "NOT_MEASURED",
+      "message_count": 6
+    },
+    {
+      "step": 3,
+      "event": "model_final",
+      "claim": "fixture output; task success must be checked against tool receipts"
+    }
+  ]
+}
+Retained workspace and archive: WORKSPACE\.validation\demo

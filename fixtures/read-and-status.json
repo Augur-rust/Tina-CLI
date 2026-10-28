@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "user": "Read sample.txt and inspect the Git status. Do not modify files.",
+  "completions": [
+    "Checking the requested file.\n\n<｜DSML｜tool_calls>\n<｜DSML｜invoke name=\"read\">\n<｜DSML｜parameter name=\"path\" string=\"true\">sample.txt</｜DSML｜parameter>\n</｜DSML｜invoke>\n</｜DSML｜tool_calls><｜end▁of▁sentence｜>",
+    "Checking the requested file.\n\n<｜DSML｜tool_calls>\n<｜DSML｜invoke name=\"git_status\">\n<｜DSML｜parameter name=\"path\" string=\"true\">.</｜DSML｜parameter>\n</｜DSML｜invoke>\n</｜DSML｜tool_calls><｜end▁of▁sentence｜>",
+    "Scripted final response: both real tool receipts were returned. This replay does not measure model intelligence.<｜end▁of▁sentence｜>"
+  ]
+}

@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.sixel -text
+*.png binary
+*.zip binary
+*.patch -whitespace

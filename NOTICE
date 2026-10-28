@@ -1,0 +1,13 @@
+Tina CLI
+Copyright 2026 Tina CLI contributors
+
+Derived from Crystal Quant, copyright 2026 Crystal Quant contributors.
+Source baseline and subsequent adaptations are recorded in provenance/source-manifest.json.
+
+This software is available under either the Apache License, Version 2.0,
+or the MIT License, at your option. See LICENSE-APACHE and LICENSE-MIT.
+
+Third-party Rust and native dependencies retain their own licenses. Their
+notices and license copies are in THIRD_PARTY_NOTICES.md and third-party/.
+Model weights, private source artwork, CUDA and runtime installers are not
+included in this standalone distribution.

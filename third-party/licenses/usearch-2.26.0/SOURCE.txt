@@ -1,0 +1,2 @@
+https://raw.githubusercontent.com/unum-cloud/USearch/v2.26.0/LICENSE
+Fetched from the official matching version tag; the registry archive omitted the license file.

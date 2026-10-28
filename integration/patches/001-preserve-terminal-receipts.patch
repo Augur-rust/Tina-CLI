@@ -1,0 +1,54 @@
+--- a/crates/cq-infer/src/main.rs
++++ b/crates/cq-infer/src/main.rs
+@@ -6288,7 +6288,7 @@
+                 continue;
+             }
+ 
+-            let (mut execution, host_started) = match access {
++            let (execution, host_started) = match access {
+                 tool_host_client::ToolHostAccess::ReadOnly => {
+                     memory
+                         .append_tool_approval(
+@@ -6452,30 +6452,22 @@
+                     }
+                 }
+             };
+-            let mut wall_budget_rejected = false;
+-            if let Some(started) = host_started {
+-                let elapsed_millis = started.elapsed().as_millis();
+-                let elapsed_millis = elapsed_millis.min(u128::from(u64::MAX)) as u64;
+-                if let Err(error) = budget.account_tool_wall_ms(elapsed_millis) {
+-                    wall_budget_rejected = true;
+-                    tool_wall_budget_exhausted = true;
+-                    execution = denied_tool_execution(format!(
+-                        "Agent tool wall budget exhausted after {elapsed_millis} ms: {error:?}"
+-                    ));
+-                }
+-            }
+-            if let Err(error) = budget.account_result_bytes(execution.inline_bytes()) {
+-                execution = denied_tool_execution(format!(
+-                    "Agent inline result budget rejected the host response: {error:?}"
+-                ));
+-            }
+-            let status = if wall_budget_rejected {
+-                conversation_memory::AgentToolResultStatus::Denied
+-            } else if execution.ok {
++            // Preserve actual effects. Resource exhaustion closes later work; it
++            // must not relabel an already completed tool as denied or failed.
++            let status = if execution.ok {
+                 conversation_memory::AgentToolResultStatus::Succeeded
+             } else {
+                 conversation_memory::AgentToolResultStatus::Failed
+             };
++            if let Some(started) = host_started {
++                let elapsed_millis = started.elapsed().as_millis().min(u64::MAX as u128) as u64;
++                if budget.account_tool_wall_ms(elapsed_millis).is_err() {
++                    tool_wall_budget_exhausted = true;
++                }
++            }
++            if budget.account_result_bytes(execution.inline_bytes()).is_err() {
++                tool_wall_budget_exhausted = true;
++            }
+             archive_tool_execution(memory, call_id, &execution, status)?;
+             ui.tool_notice(&ui.agent_tool_result_text(&call.name, execution.ok))
+                 .map_err(|error| ConversationLoopFailure::Cancel(boxed(error)))?;

@@ -1,0 +1,10 @@
+[package]
+name = "tina-protocol"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+[dependencies]
+serde = "1.0.228"
+serde_json = { version = "1.0.150", features = ["preserve_order"] }
+sha2 = "0.10.9"

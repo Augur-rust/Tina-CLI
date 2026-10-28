@@ -1,0 +1,10 @@
+/target/
+/.validation/
+/dist/
+/bin/
+/.tina/
+*.tmp
+*.log
+.env
+.env.*
+!.env.example

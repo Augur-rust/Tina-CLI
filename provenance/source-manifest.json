@@ -1,0 +1,321 @@
+{
+  "source_project": "Crystal Quant",
+  "source_revision": "10a16cb2bcd65377063912bfcbc9cbded034b220",
+  "snapshot_date": "2026-10-20",
+  "files": [
+    {
+      "source": "crates/cq-infer/src/context_budget.rs",
+      "destination": "crates/tina-harness/src/context_budget.rs",
+      "sha256": "2279db50f5d833e5a28dd945fc0885447229595bb38e7442b3bd9bb4d8f86ed4",
+      "kind": "adapted",
+      "source_sha256": "4b1d6e7df77fe51996275ffec2540c55c9153406a4a96a5b6861882b464c94b5",
+      "adaptation": "Recorded context fix, standalone documentation, Rust formatting, or LF normalization; see release_adaptations and CHANGELOG.md."
+    },
+    {
+      "source": "crates/cq-infer/src/conversation_memory.rs",
+      "destination": "crates/tina-harness/src/conversation_memory.rs",
+      "sha256": "d6f36be3b43ae8823097372c69898e72c8b284553c0de3fb22806d1e06ba9998",
+      "kind": "adapted",
+      "source_sha256": "ed180ca434a78f412882a6dd1022f9e664ff136d8899fb177741bff44dd7a283",
+      "adaptation": "Recorded context fix, standalone documentation, Rust formatting, or LF normalization; see release_adaptations and CHANGELOG.md."
+    },
+    {
+      "source": "crates/cq-infer/src/project_memory.rs",
+      "destination": "crates/tina-harness/src/project_memory.rs",
+      "sha256": "93f1b52672cb9d028ba90ce1f1a3b8d2e6ff3cebf8aba5081e99b5a1132c299f",
+      "kind": "unchanged",
+      "source_sha256": "93f1b52672cb9d028ba90ce1f1a3b8d2e6ff3cebf8aba5081e99b5a1132c299f"
+    },
+    {
+      "source": "crates/cq-infer/src/tool_host_client.rs",
+      "destination": "crates/tina-harness/src/tool_host_client.rs",
+      "sha256": "ef1e5ef98d268eff29bc4f914afc61d9d8dabd6b5a30569e01e26a2dd5d3eeac",
+      "kind": "unchanged",
+      "source_sha256": "ef1e5ef98d268eff29bc4f914afc61d9d8dabd6b5a30569e01e26a2dd5d3eeac"
+    },
+    {
+      "source": "crates/cq-infer/src/plugin.rs",
+      "destination": "crates/tina-harness/src/plugin.rs",
+      "sha256": "3863976900cdaa897e385c5428cb96b87aa4cbbd5710a39cd71ed8188852a019",
+      "kind": "unchanged",
+      "source_sha256": "3863976900cdaa897e385c5428cb96b87aa4cbbd5710a39cd71ed8188852a019"
+    },
+    {
+      "source": "crates/cq-infer/src/splash.rs",
+      "destination": "crates/tina-harness/src/splash.rs",
+      "sha256": "ec72fa572df0497d43886aec3a4f220bdd8911c7bfbf9dc65dd4b7cf823f3ddb",
+      "kind": "unchanged",
+      "source_sha256": "ec72fa572df0497d43886aec3a4f220bdd8911c7bfbf9dc65dd4b7cf823f3ddb"
+    },
+    {
+      "source": "crates/cq-infer/src/tina_cli.rs",
+      "destination": "crates/tina-harness/src/tina_cli.rs",
+      "sha256": "8bb14e345c2cc6bc1ef84c9ff3893c0bdac5a76a02c4104cd877cbd9c89ffcb9",
+      "kind": "unchanged",
+      "source_sha256": "8bb14e345c2cc6bc1ef84c9ff3893c0bdac5a76a02c4104cd877cbd9c89ffcb9"
+    },
+    {
+      "source": "crates/cq-infer/src/todo_cli.rs",
+      "destination": "crates/tina-harness/src/todo_cli.rs",
+      "sha256": "b0457ba167931998d177f6097398042d5adb722c795d50c883a045e0493952d2",
+      "kind": "unchanged",
+      "source_sha256": "b0457ba167931998d177f6097398042d5adb722c795d50c883a045e0493952d2"
+    },
+    {
+      "source": "crates/cq-infer/src/host_environment.rs",
+      "destination": "crates/tina-harness/src/host_environment.rs",
+      "sha256": "2fce75bf6b87279dfcb62b49c1fdc0909c96793f1459c79629c1c8abe65992a0",
+      "kind": "unchanged",
+      "source_sha256": "2fce75bf6b87279dfcb62b49c1fdc0909c96793f1459c79629c1c8abe65992a0"
+    },
+    {
+      "source": "crates/cq-infer/assets/luna_splash.sixel",
+      "destination": "crates/tina-harness/assets/luna_splash.sixel",
+      "sha256": "75ae5434e39339dd1f38166b3d33704671519c552b05d8176c5ec28ea8784630",
+      "kind": "unchanged",
+      "source_sha256": "75ae5434e39339dd1f38166b3d33704671519c552b05d8176c5ec28ea8784630"
+    },
+    {
+      "source": "crates/cq-infer/assets/luna_splash_1280.sixel",
+      "destination": "crates/tina-harness/assets/luna_splash_1280.sixel",
+      "sha256": "2a437ae8b0aa3b3214c378eaa4b5e00a287dc62dfbfbb164320964c2b32e3bfa",
+      "kind": "unchanged",
+      "source_sha256": "2a437ae8b0aa3b3214c378eaa4b5e00a287dc62dfbfbb164320964c2b32e3bfa"
+    },
+    {
+      "source": "crates/cq-infer/assets/luna_splash_960.sixel",
+      "destination": "crates/tina-harness/assets/luna_splash_960.sixel",
+      "sha256": "1bee5a8d9f92ad3165666fced70d1f125e6d8e6141697e02869d04534cadd7fa",
+      "kind": "unchanged",
+      "source_sha256": "1bee5a8d9f92ad3165666fced70d1f125e6d8e6141697e02869d04534cadd7fa"
+    },
+    {
+      "source": "crates/cq-infer/assets/README.md",
+      "destination": "crates/tina-harness/assets/README.md",
+      "sha256": "9c21cb0d33b7eb37ca35fa7651b54c2221d187e3af34dfd596189c111b1451bc",
+      "kind": "adapted",
+      "source_sha256": "c56d9c69da2adfad788608c0c8b380cf6a28669acf7dd8478f8b2021f383461c",
+      "adaptation": "Recorded context fix, standalone documentation, Rust formatting, or LF normalization; see release_adaptations and CHANGELOG.md."
+    },
+    {
+      "source": "crates/cq-tool-host/Cargo.toml",
+      "destination": "crates/cq-tool-host/Cargo.toml",
+      "sha256": "7de28f3350fa12e8e238160b453014f98faf103309052710bd2aaacaa209bab0",
+      "kind": "unchanged",
+      "source_sha256": "7de28f3350fa12e8e238160b453014f98faf103309052710bd2aaacaa209bab0"
+    },
+    {
+      "source": "crates/cq-tool-host/src/lib.rs",
+      "destination": "crates/cq-tool-host/src/lib.rs",
+      "sha256": "572b7941f0ab66ec267e6fa93ece2748aeaf38d014cb20081077a28a693c964f",
+      "kind": "unchanged",
+      "source_sha256": "572b7941f0ab66ec267e6fa93ece2748aeaf38d014cb20081077a28a693c964f"
+    },
+    {
+      "source": "crates/cq-tool-host/src/main.rs",
+      "destination": "crates/cq-tool-host/src/main.rs",
+      "sha256": "9cf117b880a264b15ef8f1a46aa846fbd67690273be98170ff523a020ca93cc6",
+      "kind": "unchanged",
+      "source_sha256": "9cf117b880a264b15ef8f1a46aa846fbd67690273be98170ff523a020ca93cc6"
+    },
+    {
+      "source": "crates/cq-tool-host/tests/jsonl_process.rs",
+      "destination": "crates/cq-tool-host/tests/jsonl_process.rs",
+      "sha256": "b010f631e8e7eb5372b9d60cc4988a3c1a26e9f712b4e0891533811756592838",
+      "kind": "unchanged",
+      "source_sha256": "b010f631e8e7eb5372b9d60cc4988a3c1a26e9f712b4e0891533811756592838"
+    },
+    {
+      "source": "crates/cq-retrieval/Cargo.toml",
+      "destination": "crates/cq-retrieval/Cargo.toml",
+      "sha256": "7eee049a593d4ef0ff1e55f04ff11491c9eff555dc756f49d476e0130e198ca2",
+      "kind": "unchanged",
+      "source_sha256": "7eee049a593d4ef0ff1e55f04ff11491c9eff555dc756f49d476e0130e198ca2"
+    },
+    {
+      "source": "crates/cq-retrieval/src/distance.rs",
+      "destination": "crates/cq-retrieval/src/distance.rs",
+      "sha256": "af3d408ed5eaa05f3897d3dbc9d99880802a7184d3ac1a64f7552deea95a3540",
+      "kind": "unchanged",
+      "source_sha256": "af3d408ed5eaa05f3897d3dbc9d99880802a7184d3ac1a64f7552deea95a3540"
+    },
+    {
+      "source": "crates/cq-retrieval/src/lib.rs",
+      "destination": "crates/cq-retrieval/src/lib.rs",
+      "sha256": "ef31af880289d9841c5dec628d06276947a1b5d788ad141a03947d142e0ed6c4",
+      "kind": "unchanged",
+      "source_sha256": "ef31af880289d9841c5dec628d06276947a1b5d788ad141a03947d142e0ed6c4"
+    },
+    {
+      "source": "crates/cq-retrieval/src/protocol.rs",
+      "destination": "crates/cq-retrieval/src/protocol.rs",
+      "sha256": "0f4289497abaff26066446988232b8db7ba5383f361c9b02a67ec15004fc1cfd",
+      "kind": "unchanged",
+      "source_sha256": "0f4289497abaff26066446988232b8db7ba5383f361c9b02a67ec15004fc1cfd"
+    },
+    {
+      "source": "crates/cq-retrieval/src/semantic_memory.rs",
+      "destination": "crates/cq-retrieval/src/semantic_memory.rs",
+      "sha256": "a4b359f366b0db1402554bab79d1eddf9961f75db1a9ac6dbce70d3c7e1d8192",
+      "kind": "unchanged",
+      "source_sha256": "a4b359f366b0db1402554bab79d1eddf9961f75db1a9ac6dbce70d3c7e1d8192"
+    },
+    {
+      "source": "crates/cq-retrieval/src/usearch_backend.rs",
+      "destination": "crates/cq-retrieval/src/usearch_backend.rs",
+      "sha256": "a6daacc469d4a663d0ea5030410f0cb2cb3e3c8cef3f61896d5354d05797d56c",
+      "kind": "unchanged",
+      "source_sha256": "a6daacc469d4a663d0ea5030410f0cb2cb3e3c8cef3f61896d5354d05797d56c"
+    },
+    {
+      "source": "crates/cq-generation/src/tool_transaction.rs",
+      "destination": "crates/tina-harness/src/tool_transaction.rs",
+      "sha256": "3a8aeb22704a33e5a320901218e337dfff78f7246bc18bd4ca7386250735f3c6",
+      "kind": "unchanged",
+      "source_sha256": "3a8aeb22704a33e5a320901218e337dfff78f7246bc18bd4ca7386250735f3c6"
+    },
+    {
+      "source": "crates/cq-model-deepseek-v4-flash/src/dsv4_tool_parser.rs",
+      "destination": "crates/tina-protocol/src/dsv4_tool_parser.rs",
+      "sha256": "3e281318f1499754dde7853132a6149c435cf965836e6d39cd279ed759f905b1",
+      "kind": "unchanged",
+      "source_sha256": "3e281318f1499754dde7853132a6149c435cf965836e6d39cd279ed759f905b1"
+    },
+    {
+      "source": "crates/cq-model-deepseek-v4-flash/src/dsv4_0731_encoding.rs",
+      "destination": "crates/tina-protocol/src/dsv4_0731_encoding.rs",
+      "sha256": "0bc5a6a91554307ad175c04082c657697f8ce498de5474ecb03681fc59cc2ec0",
+      "kind": "unchanged",
+      "source_sha256": "0bc5a6a91554307ad175c04082c657697f8ce498de5474ecb03681fc59cc2ec0"
+    },
+    {
+      "source": "crates/cq-model-deepseek-v4-flash/src/m114_encoding.rs",
+      "destination": "crates/tina-protocol/src/m114_encoding.rs",
+      "sha256": "b7e96720c41ca3a9bd14b00208eee97cc65f48aa758a54344537f05caa836cf0",
+      "kind": "unchanged",
+      "source_sha256": "b7e96720c41ca3a9bd14b00208eee97cc65f48aa758a54344537f05caa836cf0"
+    },
+    {
+      "source": "crates/cq-model-deepseek-v4-flash/src/strict_json.rs",
+      "destination": "crates/tina-protocol/src/strict_json.rs",
+      "sha256": "1e8ee010b0dba2adde258f26616153849b894ade8e29d258dccb9c0e4d9ebfed",
+      "kind": "unchanged",
+      "source_sha256": "1e8ee010b0dba2adde258f26616153849b894ade8e29d258dccb9c0e4d9ebfed"
+    },
+    {
+      "source": "crates/cq-infer/src/main.rs",
+      "destination": "integration/cq-infer/main.rs",
+      "sha256": "19356abafeebe74a0fff640deb8d6f48eacebe7d7c26294aa16185d4ff99c713",
+      "kind": "unchanged",
+      "source_sha256": "19356abafeebe74a0fff640deb8d6f48eacebe7d7c26294aa16185d4ff99c713"
+    },
+    {
+      "source": "crates/cq-infer/Cargo.toml",
+      "destination": "integration/cq-infer/Cargo.toml.reference",
+      "sha256": "779ede3df2a06db1f03be61a9d6c7e1dc20cdbaa3095ddd2d9b65d1ae1565c7f",
+      "kind": "unchanged",
+      "source_sha256": "779ede3df2a06db1f03be61a9d6c7e1dc20cdbaa3095ddd2d9b65d1ae1565c7f"
+    },
+    {
+      "source": "docs/ACTIVE_CONTEXT_MEMORY_PLAN.md",
+      "destination": "docs/upstream/ACTIVE_CONTEXT_MEMORY_PLAN.md",
+      "sha256": "1efa9d58571396c5d4dbaa6953a248a4aa4976599a9dd2d53f71d85da6cf0291",
+      "kind": "unchanged",
+      "source_sha256": "1efa9d58571396c5d4dbaa6953a248a4aa4976599a9dd2d53f71d85da6cf0291"
+    },
+    {
+      "source": "docs/CLI_INTERACTION_AUDIT.md",
+      "destination": "docs/upstream/CLI_INTERACTION_AUDIT.md",
+      "sha256": "16c53b2e43d8e757707de91e9b6d70f4a1baa9ec54c56e8fa4a3885f7bbb3255",
+      "kind": "unchanged",
+      "source_sha256": "16c53b2e43d8e757707de91e9b6d70f4a1baa9ec54c56e8fa4a3885f7bbb3255"
+    },
+    {
+      "source": "docs/CLI_PLUGIN_CONTRACT.md",
+      "destination": "docs/upstream/CLI_PLUGIN_CONTRACT.md",
+      "sha256": "dce3ce1c51c88c47cb18bca7fb1f5705e6aa6a3115d48e3619e8966b6cac43e2",
+      "kind": "unchanged",
+      "source_sha256": "dce3ce1c51c88c47cb18bca7fb1f5705e6aa6a3115d48e3619e8966b6cac43e2"
+    },
+    {
+      "source": "docs/AGENT_TOOL_HOST.md",
+      "destination": "docs/upstream/AGENT_TOOL_HOST.md",
+      "sha256": "21ea02bf64faa3d6becc79f3f29abdf19280c9d26a4f1651333d6be061a29e62",
+      "kind": "unchanged",
+      "source_sha256": "21ea02bf64faa3d6becc79f3f29abdf19280c9d26a4f1651333d6be061a29e62"
+    },
+    {
+      "source": "docs/public/AGENT.md",
+      "destination": "docs/upstream/AGENT.md",
+      "sha256": "889c6d65d7237147e27ae1e7b497a8845afe7c309606da229ab438c753d6e9f0",
+      "kind": "unchanged",
+      "source_sha256": "889c6d65d7237147e27ae1e7b497a8845afe7c309606da229ab438c753d6e9f0"
+    },
+    {
+      "source": "scripts/tina-cli-demo.ps1",
+      "destination": "demo/tina-cli-demo.ps1",
+      "sha256": "d29f8a170bd09b56888aa02092e8483148f690aa4b8e5348f83bc3cfd906c6a3",
+      "kind": "adapted",
+      "source_sha256": "73ed3fd350967b79e6a57d6abe4089a49b63864d9047a6768ae4b77e881b294b",
+      "adaptation": "Recorded context fix, standalone documentation, Rust formatting, or LF normalization; see release_adaptations and CHANGELOG.md."
+    },
+    {
+      "source": "LICENSE-MIT",
+      "destination": "LICENSE-MIT",
+      "sha256": "25eab6ca80be59f37cef15ff4e8e739a8e8fe4fb4e2239d09ea02d49b67ec50c",
+      "kind": "adapted",
+      "source_sha256": "970655ea5e62ea5667ba399a6aaad7f7f10d0996aa55cb0ca49a7219eafd7901",
+      "adaptation": "Recorded context fix, standalone documentation, Rust formatting, or LF normalization; see release_adaptations and CHANGELOG.md."
+    },
+    {
+      "source": "LICENSE-APACHE",
+      "destination": "LICENSE-APACHE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "kind": "adapted",
+      "source_sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6",
+      "adaptation": "Recorded context fix, standalone documentation, Rust formatting, or LF normalization; see release_adaptations and CHANGELOG.md."
+    },
+    {
+      "source": "NOTICE",
+      "destination": "NOTICE",
+      "sha256": "67a66c230e28b41d6b9d4b89e9b0f0d64bd47bc8819830539d83067f73f7822d",
+      "kind": "adapted",
+      "source_sha256": "10b7cb6e110f745ad7fc0cdebb94e291b0cc49bb08772f24b47a12a17d1f8292",
+      "adaptation": "Recorded context fix, standalone documentation, Rust formatting, or LF normalization; see release_adaptations and CHANGELOG.md."
+    },
+    {
+      "source": "rust-toolchain.toml",
+      "destination": "rust-toolchain.toml",
+      "sha256": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2",
+      "kind": "unchanged",
+      "source_sha256": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+    }
+  ],
+  "note": "Base source hashes are preserved in source_sha256; sha256 describes the released file. Original engine integration is frozen reference source; standalone wrappers, fixes, tests and release metadata are adaptations.",
+  "release_version": "0.1.0-alpha.1",
+  "release_date": "2026-10-28",
+  "release_adaptations": [
+    {
+      "files": [
+        "crates/tina-harness/src/context_budget.rs"
+      ],
+      "upstream_revision": "cb2bcda3724b9eb0efbccd145708e4106fa6cbc9",
+      "details": "Structured capacity rejection; preserve full requested output reservation for smaller owners."
+    },
+    {
+      "files": [
+        "crates/tina-harness/src/conversation_memory.rs"
+      ],
+      "upstream_revision": "3a218bdd21cf47bf25a9569c792085c9928e30d4",
+      "details": "Execution host context only in Agent messages; retain receipt-first role instructions and archive compatibility."
+    },
+    {
+      "files": [
+        "crates/tina-harness/src/replay.rs",
+        "crates/tina-harness/src/replay_tests.rs",
+        "crates/tina-harness/src/main.rs"
+      ],
+      "details": "32 MiB serialized prompt guard, large input regression and standalone context-check command."
+    }
+  ]
+}

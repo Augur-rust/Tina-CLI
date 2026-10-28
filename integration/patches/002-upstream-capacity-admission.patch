@@ -1,0 +1,631 @@
+commit cb2bcda3724b9eb0efbccd145708e4106fa6cbc9
+Author:     M24 Benchmark <m24@crystal-quant.local>
+AuthorDate: Thu Aug 13 05:47:50 2026 +0800
+Commit:     M24 Benchmark <m24@crystal-quant.local>
+CommitDate: Thu Aug 13 05:47:50 2026 +0800
+
+    feat(p4): publish structured capacity admission rejections
+
+diff --git a/crates/cq-infer/src/context_budget.rs b/crates/cq-infer/src/context_budget.rs
+index b3d7c009..31c8a4ed 100644
+--- a/crates/cq-infer/src/context_budget.rs
++++ b/crates/cq-infer/src/context_budget.rs
+@@ -28,6 +28,57 @@ pub(crate) const DEFAULT_COMPACT_INPUT_TOKENS: usize = CALIBRATED_HANDOFF_INPUT_
+ /// bounded while leaving ample room for UTF-8 and JSON framing overhead.
+ pub(crate) const MAX_CONVERSATION_DOCUMENT_BYTES: u64 = 32 * 1024 * 1024;
+ pub(crate) const MAX_INTERACTIVE_MESSAGE_BYTES: usize = 32 * 1024 * 1024;
++pub(crate) const CONTEXT_CAPACITY_REJECTION_SCHEMA: &str =
++    "crystal-quant.product.context-capacity-rejection.v1";
++
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++pub(crate) enum ContextCapacityRejectionKind {
++    EmptyInput,
++    PhysicalOwnerCapacity,
++    OutputReserveExhausted,
++    UsableInputLimit,
++}
++
++impl ContextCapacityRejectionKind {
++    pub(crate) const fn as_str(self) -> &'static str {
++        match self {
++            Self::EmptyInput => "empty-input",
++            Self::PhysicalOwnerCapacity => "physical-owner-capacity",
++            Self::OutputReserveExhausted => "output-reserve-exhausted",
++            Self::UsableInputLimit => "usable-input-limit",
++        }
++    }
++}
++
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++pub(crate) struct ContextCapacityRejection {
++    pub(crate) schema: &'static str,
++    pub(crate) kind: ContextCapacityRejectionKind,
++    pub(crate) input_tokens: usize,
++    pub(crate) requested_output_tokens: usize,
++    pub(crate) reserved_output_tokens: usize,
++    pub(crate) usable_input_limit: usize,
++    pub(crate) owner_positions: usize,
++    pub(crate) required_positions: usize,
++    pub(crate) overflow_positions: usize,
++}
++
++impl std::fmt::Display for ContextCapacityRejection {
++    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++        write!(
++            formatter,
++            "context capacity rejected ({kind}): {input} input tokens plus {reserve} reserved output tokens require {required} positions; usable input limit is {limit} and owner capacity is {owner}",
++            kind = self.kind.as_str(),
++            input = self.input_tokens,
++            reserve = self.reserved_output_tokens,
++            required = self.required_positions,
++            limit = self.usable_input_limit,
++            owner = self.owner_positions,
++        )
++    }
++}
++
++impl std::error::Error for ContextCapacityRejection {}
+ 
+ #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+ pub(crate) enum ContextPressure {
+@@ -49,6 +100,7 @@ pub(crate) struct ContextThresholds {
+ #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+ pub(crate) struct ContextBudget {
+     pub(crate) owner_positions: usize,
++    pub(crate) requested_output_tokens: usize,
+     pub(crate) output_reserve: usize,
+     pub(crate) thresholds: ContextThresholds,
+     /// Compatibility alias for the soft 95% handoff boundary.
+@@ -86,6 +138,7 @@ impl ContextBudget {
+         };
+         Self {
+             owner_positions,
++            requested_output_tokens: requested_output,
+             output_reserve,
+             thresholds,
+             handoff_at: thresholds.handoff_at,
+@@ -115,6 +168,44 @@ impl ContextBudget {
+         }
+     }
+ 
++    /// Admit a complete encoded input before an owner is created or appended.
++    ///
++    /// The usable input limit is inclusive: 258,048 input tokens plus the
++    /// mandatory 4,096-token reserve exactly fill the 262,144-position owner.
++    /// A prompt that merely fits the physical owner is still rejected when it
++    /// consumes the output reserve.
++    pub(crate) const fn admit_input(
++        self,
++        input_tokens: usize,
++    ) -> Result<(), ContextCapacityRejection> {
++        let required_positions = input_tokens.saturating_add(self.output_reserve);
++        let kind = if input_tokens == 0 {
++            Some(ContextCapacityRejectionKind::EmptyInput)
++        } else if input_tokens > self.owner_positions {
++            Some(ContextCapacityRejectionKind::PhysicalOwnerCapacity)
++        } else if self.output_reserve >= self.owner_positions {
++            Some(ContextCapacityRejectionKind::OutputReserveExhausted)
++        } else if input_tokens > self.thresholds.hard_limit {
++            Some(ContextCapacityRejectionKind::UsableInputLimit)
++        } else {
++            None
++        };
++        match kind {
++            Some(kind) => Err(ContextCapacityRejection {
++                schema: CONTEXT_CAPACITY_REJECTION_SCHEMA,
++                kind,
++                input_tokens,
++                requested_output_tokens: self.requested_output_tokens,
++                reserved_output_tokens: self.output_reserve,
++                usable_input_limit: self.thresholds.hard_limit,
++                owner_positions: self.owner_positions,
++                required_positions,
++                overflow_positions: required_positions.saturating_sub(self.owner_positions),
++            }),
++            None => Ok(()),
++        }
++    }
++
+     pub(crate) const fn display_capacity(self) -> usize {
+         if self.product_256k_owner {
+             self.thresholds.hard_limit
+@@ -215,4 +306,53 @@ mod tests {
+         assert_eq!(budget.pressure(258_048), ContextPressure::HardLimit);
+         assert_eq!(budget.pressure(usize::MAX), ContextPressure::HardLimit);
+     }
++
++    #[test]
++    fn product_input_admission_preserves_the_exact_output_reserve_boundary() {
++        let budget = ContextBudget::for_owner(PRODUCT_KV_POSITIONS, 64);
++        assert!(budget.admit_input(258_047).is_ok());
++        assert!(budget.admit_input(258_048).is_ok());
++
++        let reserve_conflict = budget.admit_input(262_144).unwrap_err();
++        assert_eq!(
++            reserve_conflict.kind,
++            ContextCapacityRejectionKind::UsableInputLimit
++        );
++        assert_eq!(reserve_conflict.input_tokens, 262_144);
++        assert_eq!(reserve_conflict.requested_output_tokens, 64);
++        assert_eq!(reserve_conflict.reserved_output_tokens, 4_096);
++        assert_eq!(reserve_conflict.required_positions, 266_240);
++        assert_eq!(reserve_conflict.overflow_positions, 4_096);
++
++        let physical_overflow = budget.admit_input(262_145).unwrap_err();
++        assert_eq!(
++            physical_overflow.kind,
++            ContextCapacityRejectionKind::PhysicalOwnerCapacity
++        );
++        assert_eq!(physical_overflow.required_positions, 266_241);
++        assert_eq!(physical_overflow.overflow_positions, 4_097);
++    }
++
++    #[test]
++    fn requested_output_can_only_shrink_the_usable_input_limit() {
++        let larger_output = ContextBudget::for_owner(PRODUCT_KV_POSITIONS, 8_192);
++        assert_eq!(larger_output.thresholds.hard_limit, 253_952);
++        assert!(larger_output.admit_input(253_952).is_ok());
++        let rejection = larger_output.admit_input(253_953).unwrap_err();
++        assert_eq!(
++            rejection.kind,
++            ContextCapacityRejectionKind::UsableInputLimit
++        );
++        assert_eq!(rejection.requested_output_tokens, 8_192);
++        assert_eq!(rejection.reserved_output_tokens, 8_192);
++        assert_eq!(rejection.overflow_positions, 1);
++
++        let exhausted = ContextBudget::for_owner(PRODUCT_KV_POSITIONS, PRODUCT_KV_POSITIONS)
++            .admit_input(1)
++            .unwrap_err();
++        assert_eq!(
++            exhausted.kind,
++            ContextCapacityRejectionKind::OutputReserveExhausted
++        );
++    }
+ }
+diff --git a/crates/cq-infer/src/main.rs b/crates/cq-infer/src/main.rs
+index c97e45b0..534e20bb 100644
+--- a/crates/cq-infer/src/main.rs
++++ b/crates/cq-infer/src/main.rs
+@@ -121,14 +121,16 @@ use cq_model_deepseek_v4_flash_runtime::{
+     M218BoundaryExecution, M218FinalBoundaryExecutor, M221EmbeddingSource,
+     M248RoutedExpertPlacementAdmission, M248RoutedExpertPlacementPlan, ProductPlacementAdmission,
+     ProductPlacementPositionTrace, RequestMlaCacheRecomputeAuditReceipt, RequestMlaExecutionMode,
+-    RequestMlaExpertCacheStats, RequestMlaExpertCapability, RequestMlaPrefillHostTelemetry,
+-    RequestMlaPrefillWoaProfile, RequestMlaRoutePayloadPosition, RequestMlaRoutePayloadReceipt,
+-    RequestMlaSameOwnerApplyError, RequestMlaSameOwnerContinuationDecision, RequestMlaSession,
+-    RequestMlaSessionError, RequestMlaToken, FFN_Q1_ACTIVE_WIDTH, M221_TOKENS, M221_VOCAB,
++    RequestMlaExpertCacheStats, RequestMlaExpertCapability, RequestMlaLongContextAdmissionMiss,
++    RequestMlaPrefillHostTelemetry, RequestMlaPrefillWoaProfile, RequestMlaRoutePayloadPosition,
++    RequestMlaRoutePayloadReceipt, RequestMlaSameOwnerApplyError,
++    RequestMlaSameOwnerContinuationDecision, RequestMlaSession, RequestMlaSessionError,
++    RequestMlaStartError, RequestMlaToken, FFN_Q1_ACTIVE_WIDTH, M221_TOKENS, M221_VOCAB,
+     M304_R2_LAYERS, REQUEST_MLA_FROZEN_LOGICAL_ROWS, REQUEST_MLA_LONG_CONTEXT_262144_LOGICAL_ROWS,
+-    REQUEST_MLA_POSITION_CAPACITY, REQUEST_MLA_PREFILL_HOST_TELEMETRY_SCHEMA,
+-    SINGLE_SEQUENCE_FAST_ACTIVE, SINGLE_SEQUENCE_FAST_EFFECTIVE_NUMERICAL_IDENTITY,
+-    SINGLE_SEQUENCE_FAST_NUMERICAL_IDENTITY, TOC_FAST_RESTORED_SHARED_EXPERT_CANDIDATE_ACTIVE,
++    REQUEST_MLA_LONG_CONTEXT_ADMISSION_MISS_SCHEMA, REQUEST_MLA_POSITION_CAPACITY,
++    REQUEST_MLA_PREFILL_HOST_TELEMETRY_SCHEMA, SINGLE_SEQUENCE_FAST_ACTIVE,
++    SINGLE_SEQUENCE_FAST_EFFECTIVE_NUMERICAL_IDENTITY, SINGLE_SEQUENCE_FAST_NUMERICAL_IDENTITY,
++    TOC_FAST_RESTORED_SHARED_EXPERT_CANDIDATE_ACTIVE,
+     TOC_FAST_RESTORED_SHARED_EXPERT_CANDIDATE_IDENTITY,
+ };
+ #[cfg(feature = "dspark-product")]
+@@ -463,6 +465,94 @@ fn conversation_close_receipt(
+     )
+ }
+ 
++fn context_capacity_failure(
++    rejection: context_budget::ContextCapacityRejection,
++    owner_exists: bool,
++) -> ConversationLoopFailure {
++    if owner_exists {
++        ConversationLoopFailure::CloseHealthy(Box::new(rejection))
++    } else {
++        ConversationLoopFailure::Cancel(Box::new(rejection))
++    }
++}
++
++fn context_capacity_rejection_receipt(
++    rejection: context_budget::ContextCapacityRejection,
++    owner_was_live: bool,
++) -> String {
++    let stage = if owner_was_live {
++        "pre-append"
++    } else {
++        "pre-owner"
++    };
++    format!(
++        "FAST_CONVERSATION_REJECTION schema={} kind={} stage={stage} owner_was_live={owner_was_live} owner_mutated=false input_tokens={} requested_output_tokens={} reserved_output_tokens={} usable_input_limit={} owner_positions={} required_positions={} overflow_positions={}",
++        rejection.schema,
++        rejection.kind.as_str(),
++        rejection.input_tokens,
++        rejection.requested_output_tokens,
++        rejection.reserved_output_tokens,
++        rejection.usable_input_limit,
++        rejection.owner_positions,
++        rejection.required_positions,
++        rejection.overflow_positions,
++    )
++}
++
++fn long_context_admission_rejection_receipt(
++    miss: RequestMlaLongContextAdmissionMiss,
++    owner_was_live: bool,
++) -> String {
++    match miss.account() {
++        Some(account) => format!(
++            "FAST_CONVERSATION_REJECTION schema={} kind={} stage=pre-kv-allocation owner_was_live={owner_was_live} owner_mutated=false account_schema={} total_device_bytes={} free_device_bytes={} resident_live_device_bytes={} active_kv8_bytes={} packed_snapshot_bytes={} fresh_destination_bytes={} request_workspace_reserve_bytes={} safety_reserve_bytes={} required_additional_bytes={} projected_peak_bytes={} remaining_free_bytes={} shortfall_bytes={}",
++            REQUEST_MLA_LONG_CONTEXT_ADMISSION_MISS_SCHEMA,
++            miss.kind(),
++            account.schema,
++            account.total_device_bytes,
++            account.free_device_bytes,
++            account.resident_live_device_bytes,
++            account.active_kv8_bytes,
++            account.packed_snapshot_bytes,
++            account.fresh_destination_bytes,
++            account.request_workspace_reserve_bytes,
++            account.safety_reserve_bytes,
++            account.required_additional_bytes,
++            account.projected_peak_bytes,
++            account.remaining_free_bytes,
++            account.shortfall_bytes,
++        ),
++        None => match miss.memory_snapshot() {
++            Some((free_device_bytes, total_device_bytes)) => format!(
++                "FAST_CONVERSATION_REJECTION schema={} kind={} stage=pre-kv-allocation owner_was_live={owner_was_live} owner_mutated=false account_schema=none total_device_bytes={total_device_bytes} free_device_bytes={free_device_bytes}",
++                REQUEST_MLA_LONG_CONTEXT_ADMISSION_MISS_SCHEMA,
++                miss.kind(),
++            ),
++            None => format!(
++                "FAST_CONVERSATION_REJECTION schema={} kind={} stage=pre-kv-allocation owner_was_live={owner_was_live} owner_mutated=false account_schema=none",
++                REQUEST_MLA_LONG_CONTEXT_ADMISSION_MISS_SCHEMA,
++                miss.kind(),
++            ),
++        },
++    }
++}
++
++fn conversation_rejection_receipt(
++    error: &(dyn std::error::Error + 'static),
++    owner_was_live: bool,
++) -> Option<String> {
++    if let Some(rejection) = error.downcast_ref::<context_budget::ContextCapacityRejection>() {
++        return Some(context_capacity_rejection_receipt(
++            *rejection,
++            owner_was_live,
++        ));
++    }
++    error
++        .downcast_ref::<RequestMlaStartError>()
++        .and_then(RequestMlaStartError::long_context_admission_miss)
++        .map(|miss| long_context_admission_rejection_receipt(miss, owner_was_live))
++}
++
+ #[derive(Debug)]
+ struct UserGenerationCancelled;
+ 
+@@ -582,18 +672,16 @@ impl FastConversationExecution {
+         request_identity_sha256: [u8; 32],
+         placement: &M248RoutedExpertPlacementPlan,
+         prompt_ids: &[u32],
+-    ) -> Result<AdmittedRequestMlaSession, BoxedError> {
++    ) -> Result<AdmittedRequestMlaSession, RequestMlaStartError> {
+         match self.profile {
+-            FastConversationProfile::Resident => runtime
+-                .start_request_mla_fast_session(
+-                    stream,
+-                    artifact,
+-                    generation,
+-                    request_identity_sha256,
+-                    placement.clone(),
+-                    prompt_ids,
+-                )
+-                .map_err(boxed),
++            FastConversationProfile::Resident => runtime.start_request_mla_fast_session(
++                stream,
++                artifact,
++                generation,
++                request_identity_sha256,
++                placement.clone(),
++                prompt_ids,
++            ),
+             FastConversationProfile::CompactHybrid => runtime
+                 .start_request_mla_compact_hybrid_manifest_bound_session(
+                     stream,
+@@ -602,8 +690,7 @@ impl FastConversationExecution {
+                     request_identity_sha256,
+                     placement.clone(),
+                     prompt_ids,
+-                )
+-                .map_err(boxed),
++                ),
+         }
+     }
+ 
+@@ -5554,6 +5641,13 @@ fn execute_fast_conversation_turn(
+             format!("{turn_label} failed tokenization: {error:?}").into(),
+         )
+     })?;
++    let context_budget = context_budget::ContextBudget::for_owner(
++        REQUEST_MLA_POSITION_CAPACITY,
++        options.max_new_tokens,
++    );
++    context_budget
++        .admit_input(prompt_ids.len())
++        .map_err(|rejection| context_capacity_failure(rejection, session.is_some()))?;
+     let turn_started = Instant::now();
+     let expert_cache_before = session
+         .as_ref()
+@@ -5594,7 +5688,7 @@ fn execute_fast_conversation_turn(
+                 placement,
+                 &prompt_ids,
+             )
+-            .map_err(ConversationLoopFailure::Cancel)?;
++            .map_err(|error| ConversationLoopFailure::Cancel(Box::new(error)))?;
+         *session = Some(admitted);
+         let live = session
+             .as_mut()
+@@ -7835,6 +7929,11 @@ fn run_fast_conversation(
+             let owner_was_live = session.is_some();
+             match close_fast_conversation_owner(&mut session, stream, false) {
+                 Ok(()) => {
++                    if let Some(receipt) =
++                        conversation_rejection_receipt(error.as_ref(), owner_was_live)
++                    {
++                        eprintln!("{receipt}");
++                    }
+                     eprintln!(
+                         "{}",
+                         conversation_close_receipt(
+@@ -7851,6 +7950,11 @@ fn run_fast_conversation(
+             let owner_was_live = session.is_some();
+             match close_fast_conversation_owner(&mut session, stream, true) {
+                 Ok(()) => {
++                    if let Some(receipt) =
++                        conversation_rejection_receipt(error.as_ref(), owner_was_live)
++                    {
++                        eprintln!("{receipt}");
++                    }
+                     eprintln!(
+                         "{}",
+                         conversation_close_receipt(
+@@ -8985,6 +9089,59 @@ mod tests {
+         );
+     }
+ 
++    #[test]
++    fn context_capacity_rejection_preserves_pre_owner_and_pre_append_disposition() {
++        let budget =
++            context_budget::ContextBudget::for_owner(context_budget::PRODUCT_KV_POSITIONS, 64);
++        let rejection = budget.admit_input(262_144).unwrap_err();
++
++        let first_turn = context_capacity_failure(rejection, false);
++        assert!(matches!(first_turn, ConversationLoopFailure::Cancel(_)));
++        assert_eq!(
++            context_capacity_rejection_receipt(rejection, false),
++            "FAST_CONVERSATION_REJECTION schema=crystal-quant.product.context-capacity-rejection.v1 kind=usable-input-limit stage=pre-owner owner_was_live=false owner_mutated=false input_tokens=262144 requested_output_tokens=64 reserved_output_tokens=4096 usable_input_limit=258048 owner_positions=262144 required_positions=266240 overflow_positions=4096"
++        );
++
++        let continuation = context_capacity_failure(rejection, true);
++        assert!(matches!(
++            continuation,
++            ConversationLoopFailure::CloseHealthy(_)
++        ));
++        assert_eq!(
++            context_capacity_rejection_receipt(rejection, true),
++            "FAST_CONVERSATION_REJECTION schema=crystal-quant.product.context-capacity-rejection.v1 kind=usable-input-limit stage=pre-append owner_was_live=true owner_mutated=false input_tokens=262144 requested_output_tokens=64 reserved_output_tokens=4096 usable_input_limit=258048 owner_positions=262144 required_positions=266240 overflow_positions=4096"
++        );
++    }
++
++    #[test]
++    fn long_context_admission_receipt_exposes_the_complete_one_byte_shortfall_account() {
++        let total = 32 * 1_024 * 1_024 * 1_024_u64;
++        let account = cq_model_deepseek_v4_flash_runtime::request_mla_long_context_admission(
++            total, total, true,
++        )
++        .unwrap();
++        let miss = cq_model_deepseek_v4_flash_runtime::request_mla_long_context_admission(
++            account.required_additional_bytes - 1,
++            total,
++            true,
++        )
++        .unwrap_err();
++        let receipt = long_context_admission_rejection_receipt(miss, false);
++        assert!(receipt
++            .contains("schema=crystal-quant.product.request-mla-long-context-admission-miss.v1"));
++        assert!(receipt.contains("kind=insufficient-device-memory"));
++        assert!(receipt.contains("stage=pre-kv-allocation"));
++        assert!(receipt.contains("owner_was_live=false owner_mutated=false"));
++        assert!(receipt.contains(
++            "account_schema=crystal-quant.product.request-mla-long-context-memory-account.v1"
++        ));
++        assert!(receipt.contains("shortfall_bytes=1"));
++        assert!(receipt.contains(&format!(
++            "required_additional_bytes={}",
++            account.required_additional_bytes
++        )));
++    }
++
+     #[test]
+     fn handoff_closes_an_existing_owner_and_retention_reaches_one_monotonically() {
+         assert!(!handoff_requires_fresh_owner(0, true));
+diff --git a/crates/cq-model-deepseek-v4-flash-runtime/src/inference_session.rs b/crates/cq-model-deepseek-v4-flash-runtime/src/inference_session.rs
+index f04826f2..c1c326a2 100644
+--- a/crates/cq-model-deepseek-v4-flash-runtime/src/inference_session.rs
++++ b/crates/cq-model-deepseek-v4-flash-runtime/src/inference_session.rs
+@@ -15,8 +15,9 @@ use crate::{
+     M242EngineError, M242IncrementalEngine, M248RoutedExpertPlacementPlan,
+     M292VerifiedExpertSourcePlan, M304RuntimeSession, M304RuntimeSessionError,
+     RequestMlaAppendOnlyContinuation, RequestMlaAppendOnlyFallback, RequestMlaExpertCapability,
+-    RequestMlaImmutableModel, RequestMlaPrefillWoaProfile, RequestMlaSession,
+-    RequestMlaSessionError, RequestMlaSessionPhase, RequestMlaToken, M221_TOKENS,
++    RequestMlaImmutableModel, RequestMlaLongContextAdmissionMiss, RequestMlaOwnerError,
++    RequestMlaPrefillWoaProfile, RequestMlaSession, RequestMlaSessionError, RequestMlaSessionPhase,
++    RequestMlaToken, M221_TOKENS,
+ };
+ #[cfg(feature = "request-mla-row32-batch4")]
+ use crate::{RequestMlaBatch4Error, M221_VOCAB};
+@@ -1767,6 +1768,69 @@ pub enum RequestMlaStartError {
+     },
+ }
+ 
++impl RequestMlaStartError {
++    /// Preserve the structured long-context admission miss across the session
++    /// construction and lease-cleanup boundary. Product callers use this to
++    /// publish the exact pre-allocation memory account without parsing Debug.
++    pub fn long_context_admission_miss(&self) -> Option<RequestMlaLongContextAdmissionMiss> {
++        let construction: &RequestMlaSessionError = match self {
++            Self::Session(construction) => construction,
++            Self::ConstructionDrain { construction, .. }
++            | Self::ConstructionCleanup { construction, .. } => construction.as_ref(),
++            Self::Admission(_) | Self::RuntimeProfile { .. } | Self::StreamIdentity(_) => {
++                return None;
++            }
++        };
++        match construction {
++            RequestMlaSessionError::Execution(M216ExecutionError::RequestMlaOwner(
++                RequestMlaOwnerError::AdmissionMiss(miss),
++            )) => Some(*miss),
++            _ => None,
++        }
++    }
++}
++
++#[cfg(test)]
++mod request_mla_start_error_tests {
++    use super::*;
++    use crate::request_mla_long_context_admission;
++
++    fn session_error_with_admission_miss(
++        miss: RequestMlaLongContextAdmissionMiss,
++    ) -> RequestMlaSessionError {
++        RequestMlaSessionError::Execution(M216ExecutionError::RequestMlaOwner(
++            RequestMlaOwnerError::AdmissionMiss(miss),
++        ))
++    }
++
++    #[test]
++    fn long_context_admission_miss_survives_the_session_start_error_chain() {
++        let total = 32 * 1_024 * 1_024 * 1_024_u64;
++        let miss = request_mla_long_context_admission(total, total, false).unwrap_err();
++        let admission = BoundedSessionAdmission::new(1).unwrap();
++        let mut lease = admission.try_admit(RequestKey::new(1, 1).unwrap()).unwrap();
++        let admission_identity = lease.identity();
++        lease.close(SessionOutcome::Failed).unwrap();
++
++        let errors = [
++            RequestMlaStartError::Session(session_error_with_admission_miss(miss)),
++            RequestMlaStartError::ConstructionDrain {
++                construction: Box::new(session_error_with_admission_miss(miss)),
++                drain: CudaRuntimeError::invalid_metadata("long_context_admission_test_drain"),
++                admission_identity,
++            },
++            RequestMlaStartError::ConstructionCleanup {
++                construction: Box::new(session_error_with_admission_miss(miss)),
++                admission: SessionAdmissionError::ZeroCapacity,
++                admission_identity,
++            },
++        ];
++        for error in errors {
++            assert_eq!(error.long_context_admission_miss(), Some(miss));
++        }
++    }
++}
++
+ impl fmt::Display for RequestMlaStartError {
+     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+         write!(formatter, "request MLA start failed: {self:?}")
+diff --git a/crates/cq-model-deepseek-v4-flash-runtime/src/request_mla_capacity.rs b/crates/cq-model-deepseek-v4-flash-runtime/src/request_mla_capacity.rs
+index 63921624..f1a25777 100644
+--- a/crates/cq-model-deepseek-v4-flash-runtime/src/request_mla_capacity.rs
++++ b/crates/cq-model-deepseek-v4-flash-runtime/src/request_mla_capacity.rs
+@@ -36,6 +36,8 @@ pub const REQUEST_MLA_LONG_CONTEXT_262144_RATIO128_ROWS: u32 =
+ 
+ pub const REQUEST_MLA_LONG_CONTEXT_MEMORY_ACCOUNT_SCHEMA: &str =
+     "crystal-quant.product.request-mla-long-context-memory-account.v1";
++pub const REQUEST_MLA_LONG_CONTEXT_ADMISSION_MISS_SCHEMA: &str =
++    "crystal-quant.product.request-mla-long-context-admission-miss.v1";
+ pub const REQUEST_MLA_LONG_CONTEXT_ACTIVE_KV8_BYTES: u64 = 938_268_672;
+ pub const REQUEST_MLA_LONG_CONTEXT_PACKED_SNAPSHOT_BYTES: u64 = 932_861_952;
+ pub const REQUEST_MLA_LONG_CONTEXT_FRESH_DESTINATION_BYTES: u64 =
+@@ -268,6 +270,15 @@ pub enum RequestMlaLongContextAdmissionMiss {
+ }
+ 
+ impl RequestMlaLongContextAdmissionMiss {
++    pub const fn kind(self) -> &'static str {
++        match self {
++            Self::Kv8BackingUnavailable(_) => "kv8-backing-unavailable",
++            Self::InsufficientDeviceMemory(_) => "insufficient-device-memory",
++            Self::InvalidSnapshot { .. } => "invalid-device-memory-snapshot",
++            Self::Arithmetic => "memory-account-arithmetic",
++        }
++    }
++
+     pub const fn account(self) -> Option<RequestMlaLongContextMemoryAccount> {
+         match self {
+             Self::Kv8BackingUnavailable(account) | Self::InsufficientDeviceMemory(account) => {
+@@ -276,8 +287,36 @@ impl RequestMlaLongContextAdmissionMiss {
+             Self::InvalidSnapshot { .. } | Self::Arithmetic => None,
+         }
+     }
++
++    pub const fn memory_snapshot(self) -> Option<(u64, u64)> {
++        match self {
++            Self::Kv8BackingUnavailable(account) | Self::InsufficientDeviceMemory(account) => {
++                Some((account.free_device_bytes, account.total_device_bytes))
++            }
++            Self::InvalidSnapshot {
++                free_device_bytes,
++                total_device_bytes,
++            } => Some((free_device_bytes, total_device_bytes)),
++            Self::Arithmetic => None,
++        }
++    }
+ }
+ 
++impl std::fmt::Display for RequestMlaLongContextAdmissionMiss {
++    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++        match self.memory_snapshot() {
++            Some((free_device_bytes, total_device_bytes)) => write!(
++                formatter,
++                "long-context admission miss ({}): free_device_bytes={free_device_bytes}, total_device_bytes={total_device_bytes}",
++                self.kind(),
++            ),
++            None => write!(formatter, "long-context admission miss ({})", self.kind()),
++        }
++    }
++}
++
++impl std::error::Error for RequestMlaLongContextAdmissionMiss {}
++
+ pub fn request_mla_long_context_admission(
+     free_device_bytes: u64,
+     total_device_bytes: u64,
+@@ -714,6 +753,25 @@ mod tests {
+         );
+     }
+ 
++    #[test]
++    fn long_context_admission_miss_has_stable_product_classification() {
++        let total = 32 * 1_024 * 1_024 * 1_024_u64;
++        let admitted = request_mla_long_context_admission(total, total, true).unwrap();
++        let miss =
++            request_mla_long_context_admission(admitted.required_additional_bytes - 1, total, true)
++                .unwrap_err();
++        assert_eq!(
++            REQUEST_MLA_LONG_CONTEXT_ADMISSION_MISS_SCHEMA,
++            "crystal-quant.product.request-mla-long-context-admission-miss.v1"
++        );
++        assert_eq!(miss.kind(), "insufficient-device-memory");
++        assert_eq!(
++            miss.memory_snapshot(),
++            Some((admitted.required_additional_bytes - 1, total))
++        );
++        assert!(miss.to_string().contains("insufficient-device-memory"));
++    }
++
+     #[test]
+     fn long_context_profile_identity_is_distinct_from_1k() {
+         let prefill = RequestMlaKvCapacityProfile::Prefill1k;
