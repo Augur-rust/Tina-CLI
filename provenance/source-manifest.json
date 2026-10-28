@@ -108,9 +108,10 @@
     {
       "source": "crates/cq-tool-host/src/lib.rs",
       "destination": "crates/cq-tool-host/src/lib.rs",
-      "sha256": "572b7941f0ab66ec267e6fa93ece2748aeaf38d014cb20081077a28a693c964f",
-      "kind": "unchanged",
-      "source_sha256": "572b7941f0ab66ec267e6fa93ece2748aeaf38d014cb20081077a28a693c964f"
+      "sha256": "730a076d14ca8c245a5029c76b3b3b3f01f27e3aed97e97f478b3035b85d8c8f",
+      "kind": "adapted",
+      "source_sha256": "572b7941f0ab66ec267e6fa93ece2748aeaf38d014cb20081077a28a693c964f",
+      "adaptation": "Restore blocking mode in the loopback web-search test fixture after accept on Windows; production tool behavior unchanged."
     },
     {
       "source": "crates/cq-tool-host/src/main.rs",
@@ -340,6 +341,12 @@
         "scripts/test_deepseek_live.py"
       ],
       "details": "Real DeepSeek acceptance exposed missing reasoning_content during tool continuation. Preserve provider reasoning in hash-protected optional archive fields, retain legacy hashes, restore reasoning through resume/handoff, and map DeepSeek thinking controls explicitly. Qualified with seven scripted and four interactive real API cases."
+    },
+    {
+      "files": [
+        "crates/cq-tool-host/src/lib.rs"
+      ],
+      "details": "Post-alpha.2 CI-only fix: accepted Windows sockets can inherit listener nonblocking mode. Explicitly restore blocking mode before the fixture uses timeout-bounded reads. No production runtime change."
     }
   ],
   "standalone_files": [

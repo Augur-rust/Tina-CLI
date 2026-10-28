@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix a Windows CI race in the loopback web-search test: explicitly restore blocking mode after accepting a connection from the nonblocking listener. Production runtime behavior is unchanged; published alpha.2 archives remain immutable.
+
 ## v0.1.0-alpha.2 — 2026-10-28
 
 - Connect the terminal UI to streaming Chat Completions and the real workspace tool host.

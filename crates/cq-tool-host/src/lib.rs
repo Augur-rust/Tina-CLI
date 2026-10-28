@@ -3337,6 +3337,9 @@ mod tests {
                     Err(error) => panic!("loopback provider accept failed: {error}"),
                 }
             };
+            // Windows can inherit the listener's nonblocking mode on accept.
+            // The fixture uses timeout-bounded blocking reads below.
+            stream.set_nonblocking(false).unwrap();
             stream
                 .set_read_timeout(Some(Duration::from_secs(5)))
                 .unwrap();
