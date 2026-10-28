@@ -15,7 +15,9 @@
     "approved_file_write": "PASS",
     "tool_receipt_returned": "PASS",
     "ctrl_c_stream_socket_closed": "PASS",
-    "new_session_after_cancel": "PASS"
+    "new_session_after_cancel": "PASS",
+    "packaged_first_run_wizard": "PASS",
+    "packaged_approved_write_and_cancel": "PASS"
   },
   "live_model_inference": "BLOCKED_ENGINE_STARTUP_ACCESS_DENIED",
   "gpu_performance_measurements": "NONE",

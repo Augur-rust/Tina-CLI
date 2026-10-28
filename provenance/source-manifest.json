@@ -50,7 +50,7 @@
     {
       "source": "crates/cq-infer/src/tina_cli.rs",
       "destination": "crates/tina-harness/src/tina_cli.rs",
-      "sha256": "3543f873f76314cb2c2dbb3178373f89a042d7b31642cbce1df9210cc8177701",
+      "sha256": "69fccb871e1fa61d99ca86d2664c208285dc92ba8cee29938c214fd34bb4d029",
       "kind": "adapted",
       "source_sha256": "8bb14e345c2cc6bc1ef84c9ff3893c0bdac5a76a02c4104cd877cbd9c89ffcb9",
       "adaptation": "Standalone live terminal integration, context fixes, documentation or LF normalization; see release_adaptations and CHANGELOG.md."

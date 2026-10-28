@@ -3773,7 +3773,14 @@ fn command_value<'a>(command: &'a str, names: &[&str]) -> Option<Option<&'a str>
 pub(crate) fn assistant_id_command(command: &str) -> Option<AssistantIdCommand> {
     command_value(
         command,
-        &["/assistant", "/assistant-id", "/name", "/助手", "/名称"],
+        &[
+            "/assistant",
+            "/assistant-id",
+            "/id",
+            "/name",
+            "/助手",
+            "/名称",
+        ],
     )
     .map(|value| match value {
         Some(value) => AssistantIdCommand::Set(value.to_string()),

@@ -5,6 +5,7 @@ The fixture supplied model response frames; all listed tools and socket operatio
 
 | Case | Observation | Result |
 | --- | --- | --- |
+| Packaged first run | Start-Tina.cmd from the extracted ZIP opened setup, saved endpoint/workspace settings and entered the live terminal | PASS |
 | Approved write | UI showed the write preview; typing APPLY created the requested file with its exact sentinel content | PASS |
 | Tool continuation | The HTTP service received the actual tool receipt before issuing its final response | PASS |
 | Cancel generation | Ctrl-C returned to the prompt and the HTTP peer observed disconnection | PASS |
